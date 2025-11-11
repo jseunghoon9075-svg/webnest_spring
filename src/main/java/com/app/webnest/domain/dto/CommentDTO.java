@@ -13,4 +13,6 @@ public class CommentDTO {
     private Long postId;
     private boolean commentIsAccept; //
     private Date commentCreateAt; //check
+    private String userNickname;
+    private String postType;
 }

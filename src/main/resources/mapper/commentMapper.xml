@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.webnest.mapper.CommentMapper">
+    <select id="selectByPostId" parameterType="Long" resultType="CommentDTO">
+        SELECT TBC.ID, TBC.USER_ID, TBC.POST_ID, TBC.COMMENT_DESCRIPTION, TBC.COMMENT_IS_ACCEPT, TBC.COMMENT_CREATE_AT, TBU.USER_NICKNAME, TBP.POST_TYPE
+        FROM TBL_COMMENT TBC
+        JOIN TBL_USER TBU
+        ON TBC.USER_ID = TBU.ID
+        JOIN TBL_POST TBP
+        ON TBC.POST_ID = TBP.ID
+        WHERE POST_ID = #{postId}
+    </select>
+</mapper>
