@@ -1,6 +1,7 @@
 package com.app.webnest.mapper;
 
 import com.app.webnest.domain.dto.PostResponseDTO;
+import com.app.webnest.domain.vo.PostVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -26,8 +27,8 @@ public interface PostMapper {
     List<PostResponseDTO> selectAllQuestionByUserId(Long userId);
 
 
+    // 게시글 작성
+    public Long insertPost(PostVO postVO);
 
-
-    //수정
 
 }

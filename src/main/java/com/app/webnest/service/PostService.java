@@ -1,8 +1,10 @@
 package com.app.webnest.service;
 
 import com.app.webnest.domain.dto.PostResponseDTO;
+import com.app.webnest.domain.vo.PostVO;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface PostService {
@@ -22,11 +24,13 @@ public interface PostService {
     // 마이페이지 - 문제둥지
     List<PostResponseDTO> getQuestionPostsByUserId(Long userId);
 
+   // 게시글 추가
+    public Map<String, Long> write(PostVO postVO);
+
 }
 
 
-//    // 게시글 추가
-//    public Map<String, Long> write(PostVO postVO);
+
 //
 //
 //    // 게시글 수정

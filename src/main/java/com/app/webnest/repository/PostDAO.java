@@ -1,6 +1,7 @@
 package com.app.webnest.repository;
 
 import com.app.webnest.domain.dto.PostResponseDTO;
+import com.app.webnest.domain.vo.PostVO;
 import com.app.webnest.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -38,6 +39,13 @@ public class PostDAO {
     // 마이페이지 - 문제둥지
     public List<PostResponseDTO> findQuestionPostsByUserId(Long userId){
         return postMapper.selectAllQuestionByUserId(userId);
+    }
+
+
+    //게시글 작성
+    public Long savePost(PostVO postVO){
+        postMapper.insertPost(postVO);
+        return postVO.getId();
     }
 
 

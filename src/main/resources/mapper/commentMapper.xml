@@ -10,4 +10,13 @@
         ON TBC.POST_ID = TBP.ID
         WHERE POST_ID = #{postId}
     </select>
+
+    <!--  답글 작성-->
+    <insert id="insertComment" parameterType="CommentVO">
+        <selectKey keyProperty="id" order="BEFORE" resultType="Long">
+            SELECT SEQ_COMMENT.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TBL_COMMENT(ID, COMMENT_DESCRIPTION, USER_ID, POST_ID, COMMENT_IS_ACCEPT, COMMENT_CREATE_AT)
+        VALUES (#{id}, #{commentDescription}, #{userId}, #{postId}, #{commentIsAccept}, #{commentCreateAt})
+    </insert>
 </mapper>

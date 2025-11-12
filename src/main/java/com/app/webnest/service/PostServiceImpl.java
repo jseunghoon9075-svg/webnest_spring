@@ -1,13 +1,16 @@
 package com.app.webnest.service;
 
 import com.app.webnest.domain.dto.PostResponseDTO;
+import com.app.webnest.domain.vo.PostVO;
 import com.app.webnest.exception.PostException;
 import com.app.webnest.repository.PostDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -48,4 +51,13 @@ public class PostServiceImpl implements PostService {
         return postDAO.findQuestionPostsByUserId(userId);
     }
 
+
+    //게시글 작성
+    @Override
+    public Map<String, Long> write(PostVO postVO) {
+        Map<String, Long> response = new HashMap<>();
+        Long newPostId = postDAO.savePost(postVO);
+        response.put("newPostId", newPostId);
+        return response;
+    }
 }

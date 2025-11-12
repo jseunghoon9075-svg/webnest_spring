@@ -89,8 +89,13 @@
         JOIN TBL_USER TBU ON TBP.USER_ID = TBU.ID
         AND TBP.USER_ID = #{userId}
     </select>
-
-
-
-
+    
+<!--    게시글 작성-->
+        <insert id="insertPost" parameterType="PostVO">
+        <selectKey keyProperty="id" order="BEFORE" resultType="Long">
+            SELECT SEQ_POST.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TBL_POST(ID, POST_TITLE, POST_CONTENT, POST_TYPE, POST_CREATE_AT, USER_ID)
+        VALUES (#{id}, #{postTitle}, #{postContent}, #{postType}, #{postCreateAt}, #{userId})
+    </insert>
 </mapper>

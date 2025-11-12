@@ -2,6 +2,7 @@ package com.app.webnest.api.privateapi;
 
 import com.app.webnest.domain.dto.ApiResponseDTO;
 import com.app.webnest.domain.dto.PostResponseDTO;
+import com.app.webnest.domain.vo.PostVO;
 import com.app.webnest.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -76,4 +78,11 @@ public class PostApi {
 //        postService.remove(id);
 //        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 삭제 성공"));
 //    }
+
+    //게시글 작성
+    @PostMapping("/write")
+    public ResponseEntity<ApiResponseDTO> writePost(@RequestBody PostVO postVO) {
+        Map<String, Long> response = postService.write(postVO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.of("게시글 작성 완료", response));
+    }
 }
