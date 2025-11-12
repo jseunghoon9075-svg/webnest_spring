@@ -8,6 +8,10 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 public class QuizResponseDTO {
     private Long quizId;
+    private Long userId;
+    private String userEmail;
     private String code;
-    private String quizSubmitError;
+    private String className;
+    private boolean isBookmark;
+    private boolean isSolve;
 }

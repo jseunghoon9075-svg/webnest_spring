@@ -1,5 +1,6 @@
 package com.app.webnest.service;
 
+import com.app.webnest.domain.dto.QuizPersonalDTO;
 import com.app.webnest.domain.dto.QuizResponseDTO;
 import com.app.webnest.domain.vo.QuizVO;
 import com.app.webnest.exception.QuizException;
@@ -42,6 +43,11 @@ public class QuizServiceImpl implements QuizService {
         } else {
             return quizId;
         }
+    }
+
+    @Override
+    public QuizPersonalDTO findQuizPersonalByAll(){
+        return  quizDAO.selectQuizPersonalAll();
     }
 
     @Override

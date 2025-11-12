@@ -1,5 +1,6 @@
 package com.app.webnest.repository;
 
+import com.app.webnest.domain.dto.QuizPersonalDTO;
 import com.app.webnest.domain.vo.QuizVO;
 import com.app.webnest.mapper.QuizMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,4 +31,7 @@ public class QuizDAO {
 
 //    문제 기댓값
     public String selectExpectationById(Long quizId) { return quizMapper.selectExpectation(quizId); }
+
+//    퀴즈리드 (join)
+    public QuizPersonalDTO selectQuizPersonalAll() { return  quizMapper.selectQuizPersonalAll(); }
 }

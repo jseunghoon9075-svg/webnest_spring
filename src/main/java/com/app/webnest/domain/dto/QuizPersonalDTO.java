@@ -11,4 +11,10 @@ public class QuizPersonalDTO {
     private boolean quizPersonalIsBookmark;
     private Long userId;
     private Long quizId;
+    private String userName;
+    private String userNickname;
+    private String userLevel;
+    private String userEmail;
+    private Long userExp;
+    private Long quizExp;
 }

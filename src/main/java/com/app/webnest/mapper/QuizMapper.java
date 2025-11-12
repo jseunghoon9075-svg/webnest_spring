@@ -1,5 +1,6 @@
 package com.app.webnest.mapper;
 
+import com.app.webnest.domain.dto.QuizPersonalDTO;
 import com.app.webnest.domain.vo.QuizVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -24,6 +25,6 @@ public interface QuizMapper {
 //    결과값 응답
     public String selectExpectation(Long quizId);
 
-
+    public QuizPersonalDTO selectQuizPersonalAll();
 
 }

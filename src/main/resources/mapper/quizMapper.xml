@@ -50,4 +50,30 @@
         WHERE ID = #{id}
     </select>
 
+<!--    퀴즈 조회(JOIN)-->
+    <select id="selectQuizPersonalAll" resultType="QuizPersonalDTO">
+        SELECT
+            TQP.ID,
+            TQP.QUIZ_PERSONAL_IS_SOLVE,
+            TQP.QUIZ_PERSONAL_IS_BOOKMARK,
+            TQP.USER_ID,
+            TQP.QUIZ_ID,
+            TBU.USER_NAME,
+            TBU.USER_NICKNAME,
+            TBU.USER_LEVEL,
+            TBU.USER_EXP,
+            TBU.USER_EMAIL,
+            TBQ.QUIZ_EXP
+        FROM TBL_QUIZ_PERSONAL TQP
+        JOIN TBL_USER TBU
+            ON TQP.USER_ID = TBU.ID
+        JOIN TBL_QUIZ TBQ
+            ON TQP.QUIZ_ID = TBQ.ID
+    </select>
+
+    <insert id="insertQuizPersonal" parameterType="QuizPersonalVO">
+        UPDATE TBL_QUIZ_PERSONAL
+        SET QUIZ_PERSONAL_IS_BOOKMARK = #{isSolve}, QUIZ_PERSONAL_IS_SOLVE = #{isBookmark}
+        WHERE ID = #{id}
+    </insert>
 </mapper>
