@@ -15,6 +15,12 @@ public class GlobalExceptionHandler {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponseDTO.of(e.getMessage()));
   }
 
+  // Compile 관련 예외 처리
+    @ExceptionHandler(QuizException.class)
+    public ResponseEntity<ApiResponseDTO<String>> handleQuizException(QuizException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponseDTO.of(e.getMessage()));
+    }
+
   // JwtToken 관련 예외 처리
   @ExceptionHandler(JwtTokenException.class)
   public ResponseEntity<ApiResponseDTO> handleJwtTokenException(JwtTokenException e) {

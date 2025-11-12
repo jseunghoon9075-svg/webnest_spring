@@ -1,5 +1,6 @@
 package com.app.webnest.service;
 
+import com.app.webnest.domain.dto.QuizResponseDTO;
 import com.app.webnest.domain.vo.QuizVO;
 
 import java.util.HashMap;
@@ -21,4 +22,7 @@ public interface QuizService {
 
 //    결과 기대값조회
     public String findQuizExpectationById(Long id);
+
+    public String javaCompilerOutput(QuizResponseDTO quizResponseDTO);
+
 }

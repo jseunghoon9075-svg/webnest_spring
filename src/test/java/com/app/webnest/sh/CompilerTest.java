@@ -24,11 +24,13 @@ public class CompilerTest {
 //        String expression = "log.info(1 + 1)";
         // 고정
         String className = "CompileResult";
-        String expression = "String.valueOf(1 + 1";
+        String expression = "";
         String code = "public class " + className + "{" +
                     "public static void main(String[] args) { System.out.println(" + expression + "); }" +
                 "}";
-        javaCompileService.execute(className, code);
+
+        log.info("실행 결과: {}",javaCompileService.execute(className, code));
+
     }
 
 

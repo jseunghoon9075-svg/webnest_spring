@@ -1,5 +1,6 @@
 package com.app.webnest.service;
 
+import com.app.webnest.domain.dto.QuizResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,4 +24,5 @@ class QuizServiceImplTest {
 
         log.info("getQuizList: {}", quizService.quizDirection(map));
     }
+
 }

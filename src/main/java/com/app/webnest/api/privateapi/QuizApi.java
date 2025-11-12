@@ -3,16 +3,21 @@ package com.app.webnest.api.privateapi;
 import com.app.webnest.domain.dto.ApiResponseDTO;
 import com.app.webnest.domain.dto.QuizResponseDTO;
 import com.app.webnest.domain.vo.QuizVO;
+import com.app.webnest.exception.GlobalExceptionHandler;
 import com.app.webnest.exception.QuizException;
+import com.app.webnest.service.JavaCompileService;
 import com.app.webnest.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +29,8 @@ import java.util.Map;
 @Slf4j
 public class QuizApi {
 
+    private final GlobalExceptionHandler  globalExceptionHandler;
+    private final JavaCompileService javaCompileService;
     private final QuizService quizService;
 
     @PostMapping("/quiz")
@@ -75,26 +82,42 @@ public class QuizApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("전체문제조회", quizList));
     }
 
-    @PostMapping("/quiz/expectation")
-    public ResponseEntity<ApiResponseDTO> getQuizExpectation(@RequestBody QuizResponseDTO  quizResponseDTO) {
-        Long id = quizResponseDTO.getQuizId();
+    @PostMapping("/quiz/java-expectation")
+    public ResponseEntity<ApiResponseDTO<String>> getJavaExpectation(@RequestBody QuizResponseDTO quizResponseDTO ) {
         String code = quizResponseDTO.getCode();
-        String language = quizResponseDTO.getLanguage();
-        String defaultExpectation = quizService.findQuizExpectationById(id);
+        Long id = quizResponseDTO.getQuizId();
+        log.info("사용자 입력코드: {}", code);
+        log.info("해당 문제 번호: {}", id);
 
-        log.info("코드실행: id={}, language={}, code={}", id, language, code);
-        if(quizResponseDTO.getQuizId() == null){
-            throw new QuizException("잘못된 요청입니다.");
+        String className = "CompileResult";
+        String sendCode = "public class "+ className + " {" +
+                "public static void main(String[] args) { System.out.println(" + code + "); }" +
+                "}";
+        log.info("실행시킬 총 코드: {}", sendCode);
+        if(sendCode == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponseDTO.of("잘못된 요청"));
         }
-        if(!language.equals(quizService.findQuizById(id).getQuizLanguage())){
-            throw new QuizException("잘못된 언어입니다.");
+        String result = javaCompileService.execute(className, sendCode);
+        if(result == null) {
+            throw new QuizException("컴파일오류");
         }
-//        js코드는 자바에서 JS코드 실행시켜주는 메서드 실행시켜서 그 결과값을 data로 보내고
-//        리액트에 output으로 반환해서 콘솔창에 출력시켜줌
-//        java코드는 여기서 실행시켜서 콘솔 결과값을 data로 보내고 동일?
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName(language);
-
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("실행 성공", true));
+        log.info("화면으로 보낼 값: {}", result);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("실행 성공", result));
     }
+
+    @PostMapping("/quiz/sql-expectation")
+    public ResponseEntity<ApiResponseDTO<String>> getSqlExpectation(@RequestBody QuizResponseDTO quizResponseDTO ) {
+        Long findQuizId = quizResponseDTO.getQuizId();
+
+        log.info("quizId: {}", findQuizId);
+        String getUserCode = quizResponseDTO.getCode();
+        log.info("userCode: {}", getUserCode);
+        String quizExpectation = quizService.findQuizExpectationById(findQuizId).toUpperCase();
+
+        if(!getUserCode.equals(quizExpectation)) {
+           throw new QuizException("잘못된 쿼리");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("실행 성공", quizExpectation));
+    }
+
 }

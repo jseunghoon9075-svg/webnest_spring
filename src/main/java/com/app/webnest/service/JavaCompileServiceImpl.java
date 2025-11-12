@@ -17,7 +17,8 @@ import java.util.Arrays;
 @Service
 public class JavaCompileServiceImpl implements JavaCompileService {
 
-    public void execute(String className, String code) {
+    public String execute(String className, String code) {
+        String result = null;
         try {
             JavaFileObject file = new JavaSourceFromString(className, code);
 
@@ -38,7 +39,7 @@ public class JavaCompileServiceImpl implements JavaCompileService {
                 for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
                     throw new QuizException("컴파일 오류");
                 }
-                return;
+
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -55,13 +56,13 @@ public class JavaCompileServiceImpl implements JavaCompileService {
                 System.setOut(oldOut);
             }
 
-            String result = baos.toString("UTF-8").trim();
+            result = baos.toString("UTF-8").trim();
 
             log.info("result: {}", result);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return result;
     }
 
 

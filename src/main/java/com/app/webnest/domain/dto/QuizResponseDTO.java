@@ -9,5 +9,5 @@ import lombok.*;
 public class QuizResponseDTO {
     private Long quizId;
     private String code;
-    private String language;
+    private String quizSubmitError;
 }
