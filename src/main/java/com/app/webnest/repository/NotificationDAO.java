@@ -15,14 +15,58 @@ import java.util.List;
 public class NotificationDAO {
     private final NotificationMapper notificationMapper;
 
-    public List<PostNotificationDTO> getPostNotificationByUserId(Long userId) {
+// 알람 가져오기 ( 포스트 , 댓글, 팔로우 )
+    public List<PostNotificationDTO> findPostNotificationByUserId(Long userId) {
         return notificationMapper.selectPostNotificationByUserId(userId);
     }
-
-    public List<CommentNotificationDTO> getCommentNotificationByUserId(Long userId) {
+    public List<CommentNotificationDTO> findCommentNotificationByUserId(Long userId) {
         return notificationMapper.selectCommentNotificationByUserId(userId);
     }
-    public List<FollowNotificationDTO> getFollowNotificationByUserId(Long userId) {
+    public List<FollowNotificationDTO> findFollowNotificationByUserId(Long userId) {
         return notificationMapper.selectFollowNotificationByUserId(userId);
     }
+//    알람 수정하기 (읽기 처리 / 전체 읽기)
+//           단건 읽기
+    public void modifyPostNotification(Long id) {
+        notificationMapper.updatePostsNotification(id);
+    }
+    public void modifyCommentNotification(Long id) {
+        notificationMapper.updateCommentsNotification(id);
+    }
+    public void modifyFollowNotification(Long id) {
+        notificationMapper.updateFollowNotification(id);
+    }
+
+//          전체 읽기 처리 ( 유저 아이디 )
+    public void modifyEveryPostsNotification(Long receiverUserId) {
+        notificationMapper.updateAllPostsNotification(receiverUserId);
+    }
+    public void modifyEveryCommentsNotification(Long receiverUserId) {
+        notificationMapper.updateAllCommentsNotification(receiverUserId);
+    }
+    public void modifyEveryFollowNotification(Long receiverUserId) {
+        notificationMapper.updateAllFollowNotification(receiverUserId);
+    }
+//    알람 삭제하기 ( 한 건 / 다 건 )
+    public void removePostNotification(Long id) {
+        notificationMapper.deletePostNotification(id);
+    }
+    public void removeCommentNotification(Long id) {
+        notificationMapper.deleteCommentNotification(id);
+    }
+    public void removeFollowNotification(Long id) {
+        notificationMapper.deleteFollowNotification(id);
+    }
+
+//            유저 알람 전체
+    public void removeEveryPostsNotification(Long receiverUserId) {
+        notificationMapper.deleteAllPostNotificationByUserId(receiverUserId);
+    }
+    public void removeEveryCommentsNotification(Long receiverUserId) {
+        notificationMapper.deleteAllCommentNotificationByUserId(receiverUserId);
+    }
+    public void removeEveryFollowNotification(Long receiverUserId) {
+        notificationMapper.deleteAllFollowNotificationByUserId(receiverUserId);
+    }
+
 }

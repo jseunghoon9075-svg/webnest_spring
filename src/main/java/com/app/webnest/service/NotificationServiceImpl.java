@@ -1,47 +1,107 @@
-package com.app.webnest.service.notification;
+package com.app.webnest.service;
 
 import com.app.webnest.domain.dto.CommentNotificationDTO;
 import com.app.webnest.domain.dto.FollowNotificationDTO;
 import com.app.webnest.domain.dto.PostNotificationDTO;
 import com.app.webnest.repository.NotificationDAO;
-import com.app.webnest.service.NotificationService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional(rollbackFor = Exception.class)
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 public class NotificationServiceImpl implements NotificationService {
+
     private final NotificationDAO notificationDAO;
 
     @Override
     public List<PostNotificationDTO> getPostNotificationByUserId(Long userId) {
-        if(notificationDAO.getPostNotificationByUserId(userId).size() > 0){
-            return notificationDAO.getPostNotificationByUserId(userId);
+        if(!notificationDAO.findPostNotificationByUserId(userId).isEmpty()){
+            return notificationDAO.findPostNotificationByUserId(userId);
         }
-        List<PostNotificationDTO> postNotificationDTOList = new ArrayList<PostNotificationDTO>();
-        return postNotificationDTOList;
+        return new ArrayList<PostNotificationDTO>();
     }
 
     @Override
     public List<CommentNotificationDTO> getCommentNotificationByUserId(Long userId) {
-        if(notificationDAO.getCommentNotificationByUserId(userId).size() > 0){
-            return notificationDAO.getCommentNotificationByUserId(userId);
+        if(!notificationDAO.findCommentNotificationByUserId(userId).isEmpty()){
+            return notificationDAO.findCommentNotificationByUserId(userId);
         }
-        List<CommentNotificationDTO> commentNotificationDTOS = new ArrayList<CommentNotificationDTO>();
-        return commentNotificationDTOS;
+        return new ArrayList<CommentNotificationDTO>();
     }
 
     @Override
     public List<FollowNotificationDTO> getFollowNotificationByUserId(Long userId) {
-        if(notificationDAO.getFollowNotificationByUserId(userId).size() > 0){
-            return notificationDAO.getFollowNotificationByUserId(userId);
+        if(!notificationDAO.findFollowNotificationByUserId(userId).isEmpty()){
+            return notificationDAO.findFollowNotificationByUserId(userId);
         }
-
         return new ArrayList<FollowNotificationDTO>();
+    }
+
+    @Override
+    public void modifyPostNotification(Long id) {
+        notificationDAO.modifyPostNotification(id);
+    }
+
+    @Override
+    public void modifyFollowNotification(Long id) {
+        notificationDAO.modifyFollowNotification(id);
+    }
+
+    @Override
+    public void modifyCommentNotification(Long id) {
+        notificationDAO.modifyCommentNotification(id);
+    }
+
+    @Override
+    public void modifyEveryPostNotification(Long receiverUserId) {
+        notificationDAO.modifyPostNotification(receiverUserId);
+    }
+
+    @Override
+    public void modifyEveryFollowNotification(Long receiverUserId) {
+        notificationDAO.modifyFollowNotification(receiverUserId);
+    }
+
+    @Override
+    public void modifyEveryCommentNotification(Long receiverUserId) {
+        notificationDAO.modifyCommentNotification(receiverUserId);
+    }
+
+    @Override
+    public void removePostNotification(Long id) {
+        notificationDAO.removePostNotification(id);
+    }
+
+    @Override
+    public void removeFollowNotification(Long id) {
+        notificationDAO.removeFollowNotification(id);
+    }
+
+    @Override
+    public void removeCommentNotification(Long id) {
+        notificationDAO.removeCommentNotification(id);
+    }
+
+    @Override
+    public void removeEveryPostNotification(Long receiverUserId) {
+        notificationDAO.removePostNotification(receiverUserId);
+    }
+
+    @Override
+    public void removeEveryFollowNotification(Long receiverUserId) {
+        notificationDAO.removeFollowNotification(receiverUserId);
+    }
+
+    @Override
+    public void removeEveryCommentNotification(Long receiverUserId) {
+        notificationDAO.removeCommentNotification(receiverUserId);
     }
 }

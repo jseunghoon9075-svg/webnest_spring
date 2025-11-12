@@ -12,7 +12,7 @@ public class CommentNotificationDTO {
     private Long id;
     private String commentNotificationAction;
     private Integer commentNotificationIsRead;
-    private Date commentNotificationCreateAt;
+    private Date notificationCreateAt;
     private String userThumbnailUrl;
     private int userLevel;
     private String userNickname;

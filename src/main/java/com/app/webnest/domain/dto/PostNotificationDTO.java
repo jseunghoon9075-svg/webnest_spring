@@ -13,10 +13,12 @@ public class PostNotificationDTO {
     private Long id;
     private String postNotificationAction;
     private Integer postNotificationIsRead;
-    private Date postNotificationCreateAt;
+    private Date notificationCreateAt;
     private String userThumbnailUrl;
     private int userLevel;
     private String userNickname;
     private Long actorUserId;
     private Long receiverUserId;
+    private String postTitle;
+    private String postContent;
 }

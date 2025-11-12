@@ -2,31 +2,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.app.webnest.mapper.NotificationMapper">
 
-
-<!--    알림 불러오기 -->
-
+<!--    알림 내용 불러오기 -->
     <select id="selectPostNotificationByUserId" resultType="PostNotificationDTO" parameterType="Long">
-        SELECT tbpn.ID , tbpn.POST_NOTIFICATION_ACTION, tbpn.POST_NOTIFICATION_IS_READ, tbpn.POST_NOTIFICATION_CREATE_AT,
-            tbu.USER_THUMBNAIL_URL, tbu.USER_LEVEL, tbu.USER_NICKNAME, tbpn.ACTOR_USER_ID, tbpn.RECEIVER_USER_ID
+        SELECT tbpn.ID , tbpn.POST_NOTIFICATION_ACTION, tbpn.POST_NOTIFICATION_IS_READ, tbpn.NOTIFICATION_CREATE_AT,
+            tbu.USER_THUMBNAIL_URL, tbu.USER_LEVEL, tbu.USER_NICKNAME, tbpn.ACTOR_USER_ID, tbpn.RECEIVER_USER_ID,
+            tbp.POST_TITLE, tbp.POST_CONTENT
         FROM (
-            SELECT ID, POST_NOTIFICATION_CREATE_AT, POST_NOTIFICATION_IS_READ, POST_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID
+            SELECT ID, NOTIFICATION_CREATE_AT, POST_NOTIFICATION_IS_READ, POST_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID, POST_ID
             FROM TBL_POST_NOTIFICATION
             WHERE RECEIVER_USER_ID = #{receiverUserId}
                 AND POST_NOTIFICATION_IS_READ = 0   --화면에서 받을 유저아이디 + 읽음 처리가 안 된 것들
-                AND POST_NOTIFICATION_CREATE_AT >= SYSTIMESTAMP - INTERVAL '7' DAY
+                AND NOTIFICATION_CREATE_AT >= SYSTIMESTAMP - INTERVAL '7' DAY
         ) tbpn
         JOIN  TBL_USER tbu
         ON  tbpn.ACTOR_USER_ID = tbu.ID
+        JOIN TBL_POST tbp
+        ON tbpn.POST_ID = tbp.ID
     </select>
     <select id="selectCommentNotificationByUserId" resultType="CommentNotificationDTO" parameterType="Long">
-        SELECT tbcn.ID , tbcn.COMMENT_NOTIFICATION_ACTION, tbcn.COMMENT_NOTIFICATION_IS_READ, tbcn.COMMENT_NOTIFICATION_CREATE_AT,
+        SELECT tbcn.ID , tbcn.COMMENT_NOTIFICATION_ACTION, tbcn.COMMENT_NOTIFICATION_IS_READ, tbcn.NOTIFICATION_CREATE_AT,
             tbcn.COMMENT_ID, tbu.USER_THUMBNAIL_URL, tbu.USER_LEVEL, tbu.USER_NICKNAME, tbcn.ACTOR_USER_ID, tbcn.RECEIVER_USER_ID, tc.POST_ID, tp.POST_TITLE , tp.POST_CONTENT
         FROM (
-            SELECT ID, COMMENT_NOTIFICATION_CREATE_AT, COMMENT_NOTIFICATION_IS_READ, COMMENT_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID, COMMENT_ID
+            SELECT ID, NOTIFICATION_CREATE_AT, COMMENT_NOTIFICATION_IS_READ, COMMENT_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID, COMMENT_ID
             FROM TBL_COMMENT_NOTIFICATION
             WHERE RECEIVER_USER_ID = 1
                 AND COMMENT_NOTIFICATION_IS_READ = 0   --화면에서 받을 유저아이디 + 읽음 처리가 안 된 것들
-                AND COMMENT_NOTIFICATION_CREATE_AT >= CURRENT_TIMESTAMP - INTERVAL '7' DAY
+                AND NOTIFICATION_CREATE_AT >= CURRENT_TIMESTAMP - INTERVAL '7' DAY
         ) tbcn
         JOIN  TBL_USER tbu
         ON  tbcn.ACTOR_USER_ID = tbu.ID
@@ -34,18 +35,20 @@
         ON tbcn.COMMENT_ID = tc.ID
         JOIN TBL_POST tp
         ON tc.POST_ID = tp.ID
-        ORDER BY tbcn.COMMENT_NOTIFICATION_CREATE_AT DESC
+        ORDER BY tbcn.NOTIFICATION_CREATE_AT DESC
     </select>
     <select id="selectFollowNotificationByUserId" resultType="FollowNotificationDTO" parameterType="Long">
-        SELECT tfn.ID, tfn.FOLLOW_NOTIFICATION_CREATE_AT,tfn.ACTOR_USER_ID, tu.USER_NICKNAME, tu.USER_LEVEL, tu.USER_THUMBNAIL_URL
+        SELECT tfn.ID, tfn.NOTIFICATION_CREATE_AT,tfn.ACTOR_USER_ID, tu.USER_NICKNAME, tu.USER_LEVEL, tu.USER_THUMBNAIL_URL
         FROM TBL_FOLLOW_NOTIFICATION tfn
         LEFT JOIN TBL_USER tu
         ON tfn.ACTOR_USER_ID = tu.ID
         WHERE tfn.RECEIVER_USER_ID = 1
-        ORDER BY tfn.FOLLOW_NOTIFICATION_CREATE_AT DESC
+            AND FOLLOW_NOTIFICATION_IS_READ = 0   --화면에서 받을 유저아이디 + 읽음 처리가 안 된 것들
+            AND NOTIFICATION_CREATE_AT >= CURRENT_TIMESTAMP - INTERVAL '7' DAY
+        ORDER BY tfn.NOTIFICATION_CREATE_AT DESC
     </select>
 
-<!--    읽기 수정 -->
+<!--    알람 심기-->
 
     <insert id="insetPostNotification" parameterType="PostNotificationVO">
         INSERT INTO TBL_POST_NOTIFICATION(ID, POST_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID, POST_ID)
@@ -59,4 +62,61 @@
         INSERT INTO TBL_FOLLOW_NOTIFICATION(ID, RECEIVER_USER_ID, ACTOR_USER_ID, FOLLOW_ID)
         VALUES (SEQ_FOLLOW_NOTIFICATION.NEXTVAL, #{receiverUserId}, #{actorUserId} ,#{followId})
     </insert>
+<!--    읽기 수정 단건 / 전체 -->
+    <update id="updatePostsNotification" parameterType="Long">
+        UPDATE TBL_POST_NOTIFICATION
+        SET POST_NOTIFICATION_IS_READ = 1
+        WHERE ID = #{id}
+    </update>
+    <update id="updateCommentsNotification" parameterType="Long">
+        UPDATE TBL_COMMENT_NOTIFICATION
+        SET COMMENT_NOTIFICATION_IS_READ = 1
+        WHERE ID = #{id}
+    </update>
+    <update id="updateFollowNotification" parameterType="Long">
+        UPDATE TBL_FOLLOW_NOTIFICATION
+        SET FOLLOW_NOTIFICATION_IS_READ = 1
+        WHERE ID = #{id}
+    </update>
+    <update id="updateAllPostsNotification" parameterType="Long">
+        UPDATE TBL_POST_NOTIFICATION
+        SET POST_NOTIFICATION_IS_READ = 1
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </update>
+    <update id="updateAllCommentsNotification" parameterType="Long">
+        UPDATE TBL_COMMENT_NOTIFICATION
+        SET COMMENT_NOTIFICATION_IS_READ = 1
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </update>
+    <update id="updateAllFollowNotification" parameterType="Long">
+        UPDATE TBL_FOLLOW_NOTIFICATION
+        SET FOLLOW_NOTIFICATION_IS_READ = 1
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </update>
+<!--    알람 전체 삭제 / 하나만 삭제 -->
+    <delete id="deletePostNotification" parameterType="Long">
+        DELETE FROM TBL_POST_NOTIFICATION
+        WHERE ID = #{id}
+    </delete>
+    <delete id="deleteCommentNotification" parameterType="Long">
+        DELETE FROM TBL_COMMENT_NOTIFICATION
+        WHERE ID = #{id}
+    </delete>
+    <delete id="deleteFollowNotification" parameterType="Long">
+        DELETE FROM TBL_FOLLOW_NOTIFICATION
+        WHERE ID = #{id}
+    </delete>
+
+    <delete id="deleteAllPostNotificationByUserId" parameterType="Long">
+        DELETE FROM TBL_POST_NOTIFICATION
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </delete>
+    <delete id="deleteAllCommentNotificationByUserId" parameterType="Long">
+        DELETE FROM TBL_COMMENT_NOTIFICATION
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </delete>
+    <delete id="deleteAllFollowNotificationByUserId" parameterType="Long">
+        DELETE FROM TBL_FOLLOW_NOTIFICATION
+        WHERE RECEIVER_USER_ID = #{receiverUserId}
+    </delete>
 </mapper>

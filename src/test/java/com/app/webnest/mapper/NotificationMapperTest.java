@@ -16,7 +16,7 @@ class NotificationMapperTest {
 
     @Test
     public void mapperTest(){
-        log.info("select Test USER::::::{}", notificationMapper.selectCommentNotificationByUserId(1L));
+        log.info("mapperTest{}",notificationMapper.selectPostNotificationByUserId(1L));
 
     }
 }

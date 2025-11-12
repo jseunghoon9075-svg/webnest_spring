@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class FollowNotificationDTO {
     private Long id;
-    private Date followNotificationCreateAt;
+    private Date notificationCreateAt;
     private Long actorUserId;
     private String userNickname;
     private int userLevel;
