@@ -19,4 +19,6 @@ public class GameJoinDTO {
     private String userThumbnailName;
     private String userThumbnailURL;
     private String userNickname;
+    private Integer userLevel;
+    private Integer userExp;
 }
