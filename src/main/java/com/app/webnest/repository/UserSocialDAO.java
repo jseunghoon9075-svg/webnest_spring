@@ -15,7 +15,8 @@ public class UserSocialDAO {
 
   // 소셜 정보 추가
   public void save(UserSocialVO userSocialVO){
-    userSocialMapper.insert(userSocialVO);
+      userSocialVO.setUserSocialProvider(userSocialVO.getUserSocialProvider().toUpperCase());
+      userSocialMapper.insert(userSocialVO);
   }
 
   // 소셜 프로바이더 조회

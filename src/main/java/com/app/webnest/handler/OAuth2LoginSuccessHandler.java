@@ -4,7 +4,7 @@ import com.app.webnest.domain.dto.UserResponseDTO;
 import com.app.webnest.domain.dto.TokenDTO;
 import com.app.webnest.domain.vo.UserInsertSocialVO;
 import com.app.webnest.domain.vo.UserSocialVO;
-import com.app.webnest.service.OAuthService;
+import com.app.webnest.service.AuthService;
 import com.app.webnest.service.UserService;
 import com.app.webnest.service.UserSocialService;
 import com.app.webnest.util.JwtTokenUtil;
@@ -37,7 +37,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
   private final UserSocialService userSocialService;
   private final JwtTokenUtil jwtTokenUtil;
   private final RedisTemplate redisTemplate;
-  private final OAuthService oauthService;
+  private final AuthService authService;
 
   // 소셜로그인 인가된 데이터가 들어온다.
   @Override
@@ -113,7 +113,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             TokenDTO tokenDTO = new TokenDTO();
             tokenDTO.setUserId(foundUser.getId());
             tokenDTO.setRefreshToken(refreshToken);
-            oauthService.saveRefreshToken(tokenDTO);
+            authService.saveRefreshToken(tokenDTO);
 
             // 쿠키
             ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -204,7 +204,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
       TokenDTO tokenDTO = new TokenDTO();
       tokenDTO.setUserId(userId);
       tokenDTO.setRefreshToken(refreshToken);
-      oauthService.saveRefreshToken(tokenDTO);
+      authService.saveRefreshToken(tokenDTO);
 
       // 7. 쿠키에 심는다
       ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)

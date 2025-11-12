@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 
-public interface OAuthService {// 로그인 -> 성공 시 토큰(AccessToken, RefreshToken)
+public interface AuthService {// 로그인 -> 성공 시 토큰(AccessToken, RefreshToken)
   public Map<String, String> login(UserVO userVO);
 
 //  전화번호로 임시 토큰 발급

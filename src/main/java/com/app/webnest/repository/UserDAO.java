@@ -43,7 +43,8 @@ public class UserDAO {
 
   // 회원 가입
   public void save(UserVO userVO){
-    userMapper.insert(userVO);
+      userVO.setUserProvider(userVO.getUserProvider().toUpperCase());
+      userMapper.insert(userVO);
   }
 
   // 회원 수정

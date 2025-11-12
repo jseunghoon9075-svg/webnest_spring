@@ -1,8 +1,10 @@
 package com.app.webnest.config;
 
+import com.app.webnest.domain.dto.TokenDTO;
 import com.app.webnest.filter.JwtAuthenticationFilter;
 import com.app.webnest.handler.JwtAuthenticationEntryPoint;
 import com.app.webnest.handler.OAuth2LoginSuccessHandler;
+import com.app.webnest.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final AuthService authService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -52,7 +55,10 @@ public class SecurityConfig {
                         if(cookies != null){
                             for(Cookie cookie : cookies){
                                 if(cookie.getName().equals("refreshToken")){
-                                    // 블랙리스트에 토큰을 등록
+                                    TokenDTO tokenDTO = new TokenDTO();
+                                    tokenDTO.setRefreshToken(cookie.getValue());
+                                    authService.revokeRefreshToken(tokenDTO);
+                                    authService.saveBlacklistedToken(tokenDTO);
                                 }
                             }
                         }

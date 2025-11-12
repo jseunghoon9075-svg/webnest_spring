@@ -30,7 +30,7 @@
         FROM TBL_USER
         WHERE
             USER_NAME = #{userName} AND USER_EMAIL = #{userEmail}
-                AND USER_PHONE = #{userPhone} AND USER_PROVIDER = 'local'
+                AND USER_PHONE = #{userPhone} AND USER_PROVIDER = 'LOCAL'
     </select>
 
     <select id="selectAll" resultType="UserVO">
@@ -56,7 +56,7 @@
         FROM
             TBL_USER
         WHERE
-            USER_NAME = #{userName} AND USER_PHONE = #{userPhone} AND USER_PROVIDER = 'local'
+            USER_NAME = #{userName} AND USER_PHONE = #{userPhone} AND USER_PROVIDER = 'LOCAL'
     </select>
 
     <select id="existsByUserEmail" parameterType="String" resultType="_boolean">

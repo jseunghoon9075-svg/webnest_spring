@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
-public class OAuthServiceImpl implements OAuthService {
+public class AuthServiceImpl implements AuthService {
 
   @Value("${jwt.token-blacklist-prefix}")
   private String BLACKLIST_TOKEN_PREFIX;

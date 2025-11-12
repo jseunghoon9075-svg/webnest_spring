@@ -3,7 +3,7 @@ package com.app.webnest.api.publicapi;
 import com.app.webnest.domain.dto.ApiResponseDTO;
 import com.app.webnest.domain.dto.TokenDTO;
 import com.app.webnest.domain.vo.UserVO;
-import com.app.webnest.service.OAuthService;
+import com.app.webnest.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -18,9 +18,9 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth/*")
-public class OAuthApi {
+public class AuthApi {
 
-  private final OAuthService authService;
+  private final AuthService authService;
   private final RedisTemplate redisTemplate;
 
   // 로그인

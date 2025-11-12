@@ -4,7 +4,7 @@ import com.app.webnest.domain.dto.ApiResponseDTO;
 import com.app.webnest.domain.dto.UserResponseDTO;
 import com.app.webnest.domain.vo.UserVO;
 import com.app.webnest.exception.UserException;
-import com.app.webnest.service.OAuthService;
+import com.app.webnest.service.AuthService;
 import com.app.webnest.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/private/users")
 @RequiredArgsConstructor
-public class UserOAuthApi {
+public class UserAuthApi {
 
   private final UserService userService;
-  private final OAuthService oauthService;
+  private final AuthService authService;
   private final PasswordEncoder passwordEncoder;
 
   @GetMapping("/me")
@@ -46,7 +46,7 @@ public class UserOAuthApi {
   }
 
   private UserResponseDTO getUserByToken(Authentication authentication){
-    String email = oauthService.getUserEmailFromAuthentication(authentication);
+    String email = authService.getUserEmailFromAuthentication(authentication);
     if (email == null || email.isBlank()) {
       throw new UserException("인증 정보에 이메일이 없습니다.");
     }

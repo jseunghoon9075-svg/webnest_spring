@@ -33,7 +33,7 @@ public class UserApi {
   }
 
 //  비밀번호 변경
-//  회원 인증으로 발급 받은 토큰을 활용하여 사용자의 비밀번호 변경 (api/publicapi/OAuthApi) -> (api/privateapi/UserOAuthapi)
+//  회원 인증으로 발급 받은 토큰을 활용하여 사용자의 비밀번호 변경 (api/publicapi/AuthApi) -> (api/privateapi/UserAuthapi)
 //    @GetMapping("/get-tmp-token") -> @PutMapping("/modify")
 
 //    // 회원수정
