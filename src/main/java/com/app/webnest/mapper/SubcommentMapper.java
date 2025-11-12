@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface SubcommentMapper {
-    List<SubcommentDTO> selectSubcomment( Long commentId);
+    List<SubcommentDTO> selectSubcomment(Long commentId);
 }
 //// 게시글 상세조회
 //public Optional<PostDTO> selectOne(Long id);

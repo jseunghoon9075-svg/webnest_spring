@@ -3,7 +3,7 @@
 <mapper namespace="com.app.webnest.mapper.SubcommentMapper">
 
     <select id="selectSubcomment" parameterType="Long" resultType="SubcommentDTO" >
-        SELECT TBS.ID, TBS.SUBCOMMENT_DESCRIPTION, TBS.COMMENT_ID, TBU.USER_NICKNAME
+        SELECT TBS.ID, TBS.SUBCOMMENT_DESCRIPTION, TBS.COMMENT_ID, TBU.USER_NICKNAME, TBS.USER_ID, TBS.SUBCOMMENT_CREATE_AT
         FROM TBL_SUBCOMMENT TBS
         JOIN TBL_USER TBU
         ON TBS.USER_ID = TBU.ID

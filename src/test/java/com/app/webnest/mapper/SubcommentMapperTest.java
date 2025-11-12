@@ -16,6 +16,7 @@ class SubcommentMapperTest {
 
     @Test
     void selectSubcomment() {
-        subcommentMapper.selectSubcomment(1L);
+        log.info("selectSubcomment: {}", subcommentMapper.selectSubcomment(1L));
+
     }
 }
