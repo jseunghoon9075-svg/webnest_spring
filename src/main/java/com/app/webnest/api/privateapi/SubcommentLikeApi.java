@@ -29,9 +29,5 @@ public class SubcommentLikeApi {
     }
 
 
-    @PostMapping("/write")
-    public ResponseEntity<ApiResponseDTO> write(@RequestBody SubcommentLikeVO subcommentLikeVO) {
-        Map<String, Long> response = subcommentLikeService.save(subcommentLikeVO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.of("게시글 작성 완료", response));
-    }
+
 }
