@@ -8,6 +8,5 @@ public class SubcommentLikeVO {
     private Long id;
     private Long userId;
     private Long postId;
-    private Long commentId;
     private Long subcommentId;
 }
