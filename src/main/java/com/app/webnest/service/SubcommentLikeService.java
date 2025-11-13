@@ -1,6 +1,8 @@
 package com.app.webnest.service;
 
-public interface CommentLikeService {
+import com.app.webnest.domain.vo.SubcommentLikeVO;
 
-    public int getCommentLike(Long commentId);
+public interface SubcommentLikeService {
+    public void save(SubcommentLikeVO subcommentLikeVO);
+    public int getSubcommentLike(Long subcommentId);
 }
