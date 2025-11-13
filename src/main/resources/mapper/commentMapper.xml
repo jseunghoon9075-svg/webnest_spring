@@ -19,4 +19,17 @@
         INSERT INTO TBL_COMMENT(ID, COMMENT_DESCRIPTION, USER_ID, POST_ID, COMMENT_IS_ACCEPT, COMMENT_CREATE_AT)
         VALUES (#{id}, #{commentDescription}, #{userId}, #{postId}, #{commentIsAccept}, #{commentCreateAt})
     </insert>
+
+    <!--    답글 수정-->
+    <update id="updateComment" parameterType="CommentVO">
+        UPDATE TBL_COMMENT
+        SET COMMENT_DESCRIPTION = #{commentDescription}, COMMENT_CREATE_AT = #{commentCreateAt}
+        WHERE ID = #{id}
+    </update>
+
+    <!--    답글 삭제-->
+    <delete id="deleteComment" parameterType="Long">
+        DELETE FROM TBL_COMMENT
+        WHERE ID = #{id}
+    </delete>
 </mapper>

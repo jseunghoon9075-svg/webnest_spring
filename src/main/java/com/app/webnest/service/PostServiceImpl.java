@@ -21,7 +21,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDTO getPost(Long id) {
-        //        postDAO.updateReadCount(id);
+        postDAO.updateReadCount(id);
         return postDAO.findPost(id).orElseThrow(()-> new PostException("Post Not Found"));
     }
 

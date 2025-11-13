@@ -47,7 +47,10 @@ public class PostDAO {
         postMapper.insertPost(postVO);
         return postVO.getId();
     }
-
+    // 게시글 조회 수 증가
+    public void updateReadCount(Long id){
+        postMapper.updatePostViewCount(id);
+    }
 
 
 

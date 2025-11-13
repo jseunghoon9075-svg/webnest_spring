@@ -35,6 +35,21 @@ public class CommentApi {
         Map<String, Long> response = commentService.writeComment(commentVO);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.of("게시글 작성 완료", response));
     }
+
+    //답글 수정
+    @PutMapping("modify")
+    public ResponseEntity<ApiResponseDTO> updateComment(@RequestBody CommentVO commentVO) {
+        commentService.modifyComment(commentVO);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("수정 조회 성공"));
+    }
+
+    //답글 삭제
+    @DeleteMapping("remove")
+    public ResponseEntity<ApiResponseDTO> deleteComment(@RequestBody Long id) {
+        commentService.removeComment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 삭제 성공"));
+    }
+
 }
 
 

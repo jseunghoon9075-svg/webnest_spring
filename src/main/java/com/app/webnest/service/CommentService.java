@@ -13,4 +13,10 @@ public interface CommentService {
 
     //답글 작성
     public Map<String, Long> writeComment(CommentVO commentVO);
+
+    //답글 수정
+    public void modifyComment(CommentVO commentVO);
+
+    //답글 삭제
+    public void removeComment(Long id);
 }

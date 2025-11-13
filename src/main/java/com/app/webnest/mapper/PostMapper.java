@@ -30,5 +30,8 @@ public interface PostMapper {
     // 게시글 작성
     public Long insertPost(PostVO postVO);
 
+    // 조회수 증가
+    public void updatePostViewCount(Long id);
+
 
 }

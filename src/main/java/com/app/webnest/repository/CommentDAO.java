@@ -24,4 +24,14 @@ public class CommentDAO {
         commentMapper .insertComment(commentVO);
         return commentVO.getId();
     }
+
+    //답글 수정
+    public void modifyComment(CommentVO commentVO) {
+        commentMapper.updateComment(commentVO);
+    }
+
+    //답글 삭제
+    public void delete(Long id){
+        commentMapper.deleteComment(id);
+    }
 }

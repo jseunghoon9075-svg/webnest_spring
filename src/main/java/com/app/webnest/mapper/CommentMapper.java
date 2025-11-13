@@ -14,4 +14,10 @@ public interface CommentMapper {
 
     //답글 작성
     public Long insertComment(CommentVO commentVO);
+
+    //답글 수정
+    public void updateComment(CommentVO commentVO);
+
+    //답글 삭제
+    public void deleteComment(Long id);
 }

@@ -24,7 +24,7 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findCommentPostId(postId);
     }
 
-
+    //답글 작성
     @Override
     public Map<String, Long> writeComment(CommentVO commentVO) {
         Map<String, Long> response = new HashMap<>();
@@ -32,5 +32,19 @@ public class CommentServiceImpl implements CommentService {
         response.put("newCommentId", newCommentId);
         return response;
     }
+
+    //답글 수정
+    @Override
+    public void modifyComment(CommentVO commentVO) {
+        commentDAO.modifyComment(commentVO);
+    }
+
+    //답글 삭제
+    @Override
+    public void removeComment(Long id) {
+        commentDAO.delete(id);
+    }
+
+
 }
 
