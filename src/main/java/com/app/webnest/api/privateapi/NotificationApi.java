@@ -5,6 +5,9 @@ import com.app.webnest.domain.dto.CommentNotificationDTO;
 import com.app.webnest.domain.dto.FollowNotificationDTO;
 import com.app.webnest.domain.dto.NotificationResponseDTO;
 import com.app.webnest.domain.dto.PostNotificationDTO;
+import com.app.webnest.domain.vo.CommentNotificationVO;
+import com.app.webnest.domain.vo.FollowNotificationVO;
+import com.app.webnest.domain.vo.PostNotificationVO;
 import com.app.webnest.service.NotificationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,24 @@ public class NotificationApi {
         result.put("comments", foundComments);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("newNotifications", result));
+    }
+
+    @PostMapping("post/insert")
+    public ResponseEntity<ApiResponseDTO> insertPostNotification(@RequestBody PostNotificationVO postNotificationVO){
+        notificationService.addPostNotification(postNotificationVO);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("complete insert post notification"));
+    }
+
+    @PostMapping("comment/insert")
+    public ResponseEntity<ApiResponseDTO> insertCommentNotification(@RequestBody CommentNotificationVO commentNotificationVO){
+        notificationService.addCommentNotification(commentNotificationVO);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("complete insert comment notification"));
+    }
+
+    @PostMapping("follow/insert")
+    public ResponseEntity<ApiResponseDTO> insertFollowNotification(@RequestBody FollowNotificationVO followNotificationVO){
+        notificationService.addFollowNotification(followNotificationVO);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("complete insert follow notification"));
     }
     @PutMapping("/post/modify")
     public ResponseEntity<ApiResponseDTO> modifyPostNotification(@RequestBody Long id){

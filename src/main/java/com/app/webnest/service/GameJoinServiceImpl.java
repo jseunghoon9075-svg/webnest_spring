@@ -28,6 +28,11 @@ public class GameJoinServiceImpl implements GameJoinService {
     }
 
     @Override
+    public void updateTeamColor(GameJoinVO gameJoinVO) {
+        gameJoinDAO.updateTeamColor(gameJoinVO);
+    }
+
+    @Override
     public List<GameJoinDTO> getPlayers(Long gameRoomId) {
         return gameJoinDAO.getPlayers(gameRoomId);
     }
@@ -36,4 +41,38 @@ public class GameJoinServiceImpl implements GameJoinService {
     public Optional<GameJoinVO> getGameJoinDTOByGameRoomId(GameJoinVO gameJoinVO){
         return gameJoinDAO.findUserInGameRoom(gameJoinVO);
     };
+
+    @Override
+    public List<GameJoinDTO> getArrangeUserByTurn(Long gameRoomId){
+       return gameJoinDAO.findUserListByGameRoomId(gameRoomId);
+    }
+    @Override
+    public Integer getUserPosition(Long userId) {
+        return gameJoinDAO.findUserPosition(userId);
+    }
+    @Override
+    public boolean getUserTurn(Long userId) {
+        boolean result = false;
+        if(gameJoinDAO.findUserTurn(userId) == 1){
+            result = true;
+        }
+        return result;
+    }
+    @Override
+    public void updateUserPosition(GameJoinVO gameJoinVO) {
+        gameJoinDAO.modifyUserPosition(gameJoinVO);
+    }
+    @Override
+    public void updateUserTurn(Long userId) {
+        gameJoinDAO.modifyUserTurn(userId);
+    }
+    @Override
+    public void updateAllUserTurn(Long gameRoomId){
+        gameJoinDAO.modifyAllTurn(gameRoomId);
+    }
+
+    @Override
+    public void updateReady(GameJoinVO gameJoinVO) {
+        gameJoinDAO.updateReady(gameJoinVO);
+    }
 }

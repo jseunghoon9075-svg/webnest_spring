@@ -13,4 +13,6 @@ public class CommentNotificationVO {
     private Date notificationCreateAt;
     private String commentNotificationAction;
     private boolean commentNotificationIsRead;
+    private Long actorUserId;
+    private Long receiverUserId;
 }

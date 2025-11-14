@@ -3,7 +3,7 @@
 <mapper namespace="com.app.webnest.mapper.ChatMessageMapper">
 
     <!-- 채팅방에 채팅 전체 조회 -->
-    <select id="selectAll" parameterType="ChatMessageVO" resultType="ChatMessageDTO" >
+    <select id="selectAll" parameterType="ChatMessageVO" resultType="ChatMessageDTO">
         SELECT
         TBCM.ID,
         TBCM.CHAT_MESSAGE_CONTENT,
@@ -11,54 +11,95 @@
         TBCM.CHAT_MESSAGE_READ_STATUS,
         TBCM.CHAT_MESSAGE_CREATE_AT,
         TBCM.USER_SENDER_ID,
-        TBSENDER.USER_NICKNAME AS SENDER_NICKNAME,
-        TBSENDER.USER_THUMBNAIL_URL AS SENDER_THUMBNAIL_URL,
-        TBSENDER.USER_LEVEL AS SENDER_LEVEL,
+        TBSENDER.USER_NICKNAME       AS SENDER_NICKNAME,
+        TBSENDER.USER_THUMBNAIL_URL  AS SENDER_THUMBNAIL_URL,
+        TBSENDER.USER_LEVEL          AS SENDER_LEVEL,
         TBCM.USER_RECEIVER_ID,
-        TBRECEIVER.USER_NICKNAME AS RECEIVER_NICKNAME,
+        TBRECEIVER.USER_NICKNAME     AS RECEIVER_NICKNAME,
         TBRECEIVER.USER_THUMBNAIL_URL AS RECEIVER_THUMBNAIL_URL,
-        TBRECEIVER.USER_LEVEL AS RECEIVER_LEVEL,
-        TBCM.GAME_ROOM_ID
+        TBRECEIVER.USER_LEVEL        AS RECEIVER_LEVEL,
+        TBCM.GAME_ROOM_ID,
+        TGR.GAME_ROOM_TITLE,
+        /* 🔹 팀컬러 통일 alias */
+        GJ_S.GAME_JOIN_TEAMCOLOR     AS USER_SENDER_TEAMCOLOR,
+        GJ_R.GAME_JOIN_TEAMCOLOR     AS RECEIVER_TEAMCOLOR
         FROM TBL_CHAT_MESSAGE TBCM
-        LEFT JOIN TBL_USER TBSENDER ON TBCM.USER_SENDER_ID = TBSENDER.ID
-        LEFT JOIN TBL_USER TBRECEIVER ON TBCM.USER_RECEIVER_ID = TBRECEIVER.ID
+        LEFT JOIN TBL_USER TBSENDER
+        ON TBCM.USER_SENDER_ID = TBSENDER.ID
+        LEFT JOIN TBL_USER TBRECEIVER
+        ON TBCM.USER_RECEIVER_ID = TBRECEIVER.ID
+        LEFT JOIN TBL_GAME_ROOM TGR
+        ON TBCM.GAME_ROOM_ID = TGR.ID
+        /* 🔹 보낸 사람 팀컬러 */
+        LEFT JOIN TBL_GAME_JOIN GJ_S
+        ON GJ_S.GAME_ROOM_ID = TBCM.GAME_ROOM_ID
+        AND GJ_S.USER_ID      = TBCM.USER_SENDER_ID
+        /* 🔹 받는 사람 팀컬러(1:1일 때) */
+        LEFT JOIN TBL_GAME_JOIN GJ_R
+        ON GJ_R.GAME_ROOM_ID = TBCM.GAME_ROOM_ID
+        AND GJ_R.USER_ID      = TBCM.USER_RECEIVER_ID
         WHERE TBCM.GAME_ROOM_ID = #{gameRoomId}
         AND (
         TBCM.USER_RECEIVER_ID IS NULL
         OR TBCM.USER_RECEIVER_ID = #{userReceiverId}
-        OR TBCM.USER_SENDER_ID = #{userSenderId}
+        OR TBCM.USER_SENDER_ID   = #{userSenderId}
         )
         ORDER BY TBCM.CHAT_MESSAGE_CREATE_AT ASC
     </select>
 
-    <select id="select" parameterType="ChatMessageVO" resultType="ChatMessageDTO" >
-        SELECT
-        TBCM.ID,
-        TBCM.CHAT_MESSAGE_CONTENT,
-        TBCM.CHAT_MESSAGE_TYPE,
-        TBCM.CHAT_MESSAGE_READ_STATUS,
-        TBCM.CHAT_MESSAGE_CREATE_AT,
-        TBCM.USER_SENDER_ID,
-        TBSENDER.USER_NICKNAME AS SENDER_NICKNAME,
-        TBSENDER.USER_THUMBNAIL_URL AS SENDER_THUMBNAIL_URL,
-        TBSENDER.USER_LEVEL AS SENDER_LEVEL,
-        TBCM.USER_RECEIVER_ID,
-        TBRECEIVER.USER_NICKNAME AS RECEIVER_NICKNAME,
-        TBRECEIVER.USER_THUMBNAIL_URL AS RECEIVER_THUMBNAIL_URL,
-        TBRECEIVER.USER_LEVEL AS RECEIVER_LEVEL,
-        TBCM.GAME_ROOM_ID
+
+
+    <select id="select" parameterType="ChatMessageVO" resultType="ChatMessageDTO">
+        SELECT *
+        FROM (
+            SELECT
+            TBCM.ID,
+            TBCM.CHAT_MESSAGE_CONTENT,
+            TBCM.CHAT_MESSAGE_TYPE,
+            TBCM.CHAT_MESSAGE_READ_STATUS,
+            TBCM.CHAT_MESSAGE_CREATE_AT,
+            TBCM.USER_SENDER_ID,
+            TBSENDER.USER_NICKNAME       AS SENDER_NICKNAME,
+            TBSENDER.USER_THUMBNAIL_URL  AS SENDER_THUMBNAIL_URL,
+            TBSENDER.USER_LEVEL          AS SENDER_LEVEL,
+            TBCM.USER_RECEIVER_ID,
+            TBRECEIVER.USER_NICKNAME     AS RECEIVER_NICKNAME,
+            TBRECEIVER.USER_THUMBNAIL_URL AS RECEIVER_THUMBNAIL_URL,
+        TBRECEIVER.USER_LEVEL        AS RECEIVER_LEVEL,
+        TBCM.GAME_ROOM_ID,
+        TGR.GAME_ROOM_TITLE,
+        /* 🔹 팀컬러 통일 alias */
+        GJ_S.GAME_JOIN_TEAMCOLOR     AS USER_SENDER_TEAMCOLOR,
+        GJ_R.GAME_JOIN_TEAMCOLOR     AS RECEIVER_TEAMCOLOR
         FROM TBL_CHAT_MESSAGE TBCM
-        LEFT JOIN TBL_USER TBSENDER ON TBCM.USER_SENDER_ID = TBSENDER.ID
-        LEFT JOIN TBL_USER TBRECEIVER ON TBCM.USER_RECEIVER_ID = TBRECEIVER.ID
+        LEFT JOIN TBL_USER TBSENDER
+        ON TBCM.USER_SENDER_ID = TBSENDER.ID
+        LEFT JOIN TBL_USER TBRECEIVER
+        ON TBCM.USER_RECEIVER_ID = TBRECEIVER.ID
+        LEFT JOIN TBL_GAME_ROOM TGR
+        ON TBCM.GAME_ROOM_ID = TGR.ID
+        /* 🔹 보낸 사람 팀컬러 */
+        LEFT JOIN TBL_GAME_JOIN GJ_S
+        ON GJ_S.GAME_ROOM_ID = TBCM.GAME_ROOM_ID
+        AND GJ_S.USER_ID      = TBCM.USER_SENDER_ID
+        /* 🔹 받는 사람 팀컬러(1:1일 때) */
+        LEFT JOIN TBL_GAME_JOIN GJ_R
+        ON GJ_R.GAME_ROOM_ID = TBCM.GAME_ROOM_ID
+        AND GJ_R.USER_ID      = TBCM.USER_RECEIVER_ID
         WHERE TBCM.GAME_ROOM_ID = #{gameRoomId}
         AND (
         TBCM.USER_RECEIVER_ID IS NULL
         OR TBCM.USER_RECEIVER_ID = #{userReceiverId}
-        OR TBCM.USER_SENDER_ID = #{userSenderId}
+        OR TBCM.USER_SENDER_ID   = #{userSenderId}
         )
+        <if test="id != null and id > 0">
         AND TBCM.ID = #{id}
-        ORDER BY TBCM.CHAT_MESSAGE_CREATE_AT ASC
+        </if>
+        ORDER BY TBCM.CHAT_MESSAGE_CREATE_AT DESC, TBCM.ID DESC
+        )
+        WHERE ROWNUM = 1
     </select>
+
 
     <!-- 채팅 추가 -->
     <insert id="insert" parameterType="ChatMessageVO">

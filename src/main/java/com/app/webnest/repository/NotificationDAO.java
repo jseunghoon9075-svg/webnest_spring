@@ -3,6 +3,9 @@ package com.app.webnest.repository;
 import com.app.webnest.domain.dto.CommentNotificationDTO;
 import com.app.webnest.domain.dto.FollowNotificationDTO;
 import com.app.webnest.domain.dto.PostNotificationDTO;
+import com.app.webnest.domain.vo.CommentNotificationVO;
+import com.app.webnest.domain.vo.FollowNotificationVO;
+import com.app.webnest.domain.vo.PostNotificationVO;
 import com.app.webnest.mapper.NotificationMapper;
 import com.app.webnest.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,17 @@ import java.util.List;
 @Repository
 public class NotificationDAO {
     private final NotificationMapper notificationMapper;
+
+// 알람 추가 ( 포스트 , 댓글, 팔로우 )
+    public void savePostNotification(PostNotificationVO postNotificationVO) {
+        notificationMapper.insetPostNotification(postNotificationVO);
+    }
+    public void saveCommentNotification(CommentNotificationVO commentNotificationVO) {
+        notificationMapper.insertCommentNotification(commentNotificationVO);
+    }
+    public void saveFollowNotification(FollowNotificationVO followNotificationVO) {
+        notificationMapper.insertFollowNotification(followNotificationVO);
+    }
 
 // 알람 가져오기 ( 포스트 , 댓글, 팔로우 )
     public List<PostNotificationDTO> findPostNotificationByUserId(Long userId) {

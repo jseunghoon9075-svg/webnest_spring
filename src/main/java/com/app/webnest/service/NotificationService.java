@@ -3,6 +3,9 @@ package com.app.webnest.service;
 import com.app.webnest.domain.dto.CommentNotificationDTO;
 import com.app.webnest.domain.dto.FollowNotificationDTO;
 import com.app.webnest.domain.dto.PostNotificationDTO;
+import com.app.webnest.domain.vo.CommentNotificationVO;
+import com.app.webnest.domain.vo.FollowNotificationVO;
+import com.app.webnest.domain.vo.PostNotificationVO;
 
 import java.util.List;
 
@@ -11,6 +14,11 @@ public interface NotificationService {
     public List<PostNotificationDTO> getPostNotificationByUserId(Long userId);
     public List<CommentNotificationDTO> getCommentNotificationByUserId(Long userId);
     public List<FollowNotificationDTO> getFollowNotificationByUserId(Long userId);
+
+//    알람 추가
+    public void addPostNotification(PostNotificationVO postNotificationVO);
+    public void addCommentNotification(CommentNotificationVO commentNotificationVO);
+    public void addFollowNotification(FollowNotificationVO followNotificationVO);
 
 //    알람 하나를 클릭했을 때
     public void modifyPostNotification(Long id);

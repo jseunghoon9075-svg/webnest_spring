@@ -12,4 +12,7 @@ public class FollowNotificationVO {
     private Long userId;
     private Integer followNotificationIsRead;
     private Date notificationCreateAt;
+    private Long actorUserId;
+    private Long receiverUserId;
+    private Long followId;
 }

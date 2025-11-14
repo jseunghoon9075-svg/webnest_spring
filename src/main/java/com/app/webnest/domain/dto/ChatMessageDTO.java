@@ -7,8 +7,11 @@ import lombok.*;
 public class ChatMessageDTO {
     private Long id;
     private Long gameRoomId;
+    private String gameRoomTitle;
     private Long userSenderId;
     private String senderNickname;
+    private String userSenderTeamcolor;   // 🔁 통일: teamcolor
+    private String receiverTeamcolor;     // 🔁 필요하면 활용
     private String senderThumbnailUrl;
     private Integer senderLevel;
     private Long userReceiverId;

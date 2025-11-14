@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.webnest.mapper.FollowMapper">
+
+    <!-- 특정 유저가 팔로잉하는 유저들 조회 -->
+    <!-- followerId가 팔로잉하는 사람이므로, followerId = #{userId}인 경우의 userId들 -->
+    <!-- 유저 A가 팔로잉하는 사람들 = followerId = A인 경우의 userId들 -->
+    <select id="selectFollowingByUserId" parameterType="Long" resultType="FollowDTO">
+        SELECT 
+            TF.ID,
+            TF.USER_ID,
+            TF.FOLLOWER_ID,
+            TF.FOLLOW_CREATE_AT,
+            TU.USER_NICKNAME AS USER_NICKNAME,
+            TU.USER_THUMBNAIL_URL AS USER_THUMBNAIL_URL,
+            TU.USER_LEVEL AS USER_LEVEL,
+            TU.USER_EMAIL AS USER_EMAIL
+        FROM TBL_FOLLOW TF
+        JOIN TBL_USER TU ON TF.USER_ID = TU.ID
+        WHERE TF.FOLLOWER_ID = #{userId}
+        ORDER BY TF.FOLLOW_CREATE_AT DESC
+    </select>
+
+    <!-- 특정 유저를 팔로우하는 유저들 조회 (팔로워 리스트) -->
+    <!-- 유저 A를 팔로우하는 사람들 = userId = A인 경우의 followerId들 -->
+    <select id="selectFollowersByUserId" parameterType="Long" resultType="FollowDTO">
+        SELECT 
+            TF.ID,
+            TF.USER_ID,
+            TF.FOLLOWER_ID,
+            TF.FOLLOW_CREATE_AT,
+            TU.USER_NICKNAME AS USER_NICKNAME,
+            TU.USER_THUMBNAIL_URL AS USER_THUMBNAIL_URL,
+            TU.USER_LEVEL AS USER_LEVEL,
+            TU.USER_EMAIL AS USER_EMAIL
+        FROM TBL_FOLLOW TF
+        JOIN TBL_USER TU ON TF.FOLLOWER_ID = TU.ID
+        WHERE TF.USER_ID = #{userId}
+        ORDER BY TF.FOLLOW_CREATE_AT DESC
+    </select>
+
+</mapper>
+

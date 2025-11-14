@@ -52,15 +52,15 @@
 
     <insert id="insetPostNotification" parameterType="PostNotificationVO">
         INSERT INTO TBL_POST_NOTIFICATION(ID, POST_NOTIFICATION_ACTION, ACTOR_USER_ID, RECEIVER_USER_ID, POST_ID)
-        VALUES (SEQ_POST_NOTIFICATION.NEXTVAL, #{postNotificationAction} , #{actorUserId}, #{receiverUserId}, #{postId});
+        VALUES (SEQ_POST_NOTIFICATION.NEXTVAL, #{postNotificationAction} , #{actorUserId}, #{receiverUserId}, #{postId})
     </insert>
     <insert id="insertCommentNotification" parameterType="CommentNotificationVO">
         INSERT INTO TBL_COMMENT_NOTIFICATION(ID, COMMENT_NOTIFICATION_ACTION, RECEIVER_USER_ID, ACTOR_USER_ID, COMMENT_ID)
-        VALUES (SEQ_COMMENT_NOTIFICATION.NEXTVAL, #{postNotificationAction}, #{receiverUserId}, #{actorUserId}, #{commentId})
+        VALUES (SEQ_COMMENT_NOTIFICATION.NEXTVAL, #{commentNotificationAction}, #{receiverUserId}, #{actorUserId}, #{commentId}))
     </insert>
     <insert id="insertFollowNotification" parameterType="FollowNotificationVO">
         INSERT INTO TBL_FOLLOW_NOTIFICATION(ID, RECEIVER_USER_ID, ACTOR_USER_ID, FOLLOW_ID)
-        VALUES (SEQ_FOLLOW_NOTIFICATION.NEXTVAL, #{receiverUserId}, #{actorUserId} ,#{followId})
+        VALUES (SEQ_FOLLOW_NOTIFICATION.NEXTVAL, #{receiverUserId}, #{actorUserId} ,#{followId}))
     </insert>
 <!--    읽기 수정 단건 / 전체 -->
     <update id="updatePostsNotification" parameterType="Long">

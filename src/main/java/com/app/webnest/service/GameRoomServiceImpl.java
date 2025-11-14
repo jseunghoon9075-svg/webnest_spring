@@ -34,6 +34,8 @@ public class GameRoomServiceImpl implements GameRoomService {
     // 게임방
     @Override
     public GameRoomDTO getRoom(Long id) {
-        return gameRoomDAO.getRoom(id).orElseThrow(() -> new RuntimeException("채팅방 조회 오류"));
+        GameRoomDTO room = gameRoomDAO.getRoom(id).orElseThrow(() -> new RuntimeException("채팅방 조회 오류"));
+        room.setPlayers(gameJoinDAO.getPlayers(id));
+        return room;
     }
 }

@@ -3,6 +3,9 @@ package com.app.webnest.service;
 import com.app.webnest.domain.dto.CommentNotificationDTO;
 import com.app.webnest.domain.dto.FollowNotificationDTO;
 import com.app.webnest.domain.dto.PostNotificationDTO;
+import com.app.webnest.domain.vo.CommentNotificationVO;
+import com.app.webnest.domain.vo.FollowNotificationVO;
+import com.app.webnest.domain.vo.PostNotificationVO;
 import com.app.webnest.repository.NotificationDAO;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -43,6 +46,21 @@ public class NotificationServiceImpl implements NotificationService {
             return notificationDAO.findFollowNotificationByUserId(userId);
         }
         return new ArrayList<FollowNotificationDTO>();
+    }
+
+    @Override
+    public void addPostNotification(PostNotificationVO postNotificationVO) {
+        notificationDAO.savePostNotification(postNotificationVO);
+    }
+
+    @Override
+    public void addCommentNotification(CommentNotificationVO commentNotificationVO) {
+        notificationDAO.saveCommentNotification(commentNotificationVO);
+    }
+
+    @Override
+    public void addFollowNotification(FollowNotificationVO followNotificationVO) {
+        notificationDAO.saveFollowNotification(followNotificationVO);
     }
 
     @Override

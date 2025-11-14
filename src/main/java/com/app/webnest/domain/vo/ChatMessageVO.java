@@ -15,4 +15,5 @@ public class ChatMessageVO {
     private Long userSenderId;
     private Long userReceiverId;
     private Long gameRoomId;
+    private String userSenderTeamcolor;
 }

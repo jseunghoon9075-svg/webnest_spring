@@ -13,4 +13,7 @@ public class PostNotificationVO {
     private Date notificationCreateAt;
     private Integer postNotificationIsRead;
     private String postNotificationContent; // erd수정
+    private String postNotificationAction;
+    private Long actorUserId;
+    private Long receiverUserId;
 }

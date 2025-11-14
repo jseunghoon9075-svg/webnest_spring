@@ -6,7 +6,7 @@
     <!-- 방에 있는 모든 유저 조회 -->
     <select id="selectAll" parameterType="Long" resultType="GameJoinDTO">
         SELECT
-        TBGJ.ID, TBGJ.GAME_JOIN_IS_HOST, TBGJ.USER_ID, TBGJ.GAME_ROOM_ID, TBGJ.GAME_JOIN_CREATE_AT,
+        TBGJ.ID, TBGJ.GAME_JOIN_IS_HOST, TBGJ.USER_ID, TBGJ.GAME_ROOM_ID,TBGJ.GAME_JOIN_TEAMCOLOR, TBGJ.GAME_JOIN_CREATE_AT,
         TBU.USER_NAME, TBU.USER_BIRTHDAY, TBU.USER_EMAIL, TBU.USER_PHONE, TBU.USER_EXP, TBU.USER_THUMBNAIL_NAME, TBU.USER_THUMBNAIL_URL, TBU.USER_NICKNAME
         FROM TBL_GAME_JOIN TBGJ
         JOIN TBL_USER TBU
@@ -26,9 +26,118 @@
             GAME_ROOM_ID = #{gameRoomId}
     </delete>
 
-    <select id="selectGameUserByUserIdAndGameRoom" parameterType="GameJoinVO" resultType="GameJoinVO">
-        SELECT ID, GAME_JOIN_IS_HOST, USER_ID ,GAME_ROOM_ID
-        FROM TBL_GAME_JOIN
-        WHERE USER_ID = #{userId} AND #{gameRoomId}
+    <update id="updateTeamColor" parameterType="GameJoinVO">
+        UPDATE TBL_GAME_JOIN
+        SET GAME_JOIN_TEAMCOLOR = #{gameJoinTeamcolor}
+        WHERE
+            USER_ID = #{userId}
+        AND
+            GAME_ROOM_ID = #{gameRoomId}
+    </update>
+<!--    현재 방에 있는 유저 리스트를 가져온다.-->
+    <select id="selectUserListByGameRoomId" parameterType="Long" resultType="GameJoinDTO">
+        SELECT 
+            g.ID,
+            g.GAME_JOIN_IS_HOST,
+            g.USER_ID,
+            g.GAME_ROOM_ID,
+            g.GAME_JOIN_TEAMCOLOR,
+            g.GAME_JOIN_CREATE_AT,
+            g.GAME_JOIN_IS_TURN,
+            g.GAME_JOIN_POSITION,
+            g.GAME_JOIN_IS_READY,
+            u.USER_NAME,
+            u.USER_BIRTHDAY,
+            u.USER_EMAIL,
+            u.USER_PHONE,
+            u.USER_EXP,
+            u.USER_LEVEL,
+            u.USER_THUMBNAIL_NAME,
+            u.USER_THUMBNAIL_URL,
+            u.USER_NICKNAME
+        FROM (
+            SELECT 
+                g.*,
+                ROW_NUMBER() OVER (
+                    PARTITION BY NVL(g.GAME_JOIN_TEAMCOLOR, 'GRAY')
+                    ORDER BY g.GAME_JOIN_CREATE_AT, g.ID
+                ) AS rn
+            FROM TBL_GAME_JOIN g
+            WHERE g.GAME_ROOM_ID = #{gameRoomId}
+        ) g
+        JOIN TBL_USER u ON g.USER_ID = u.ID
+        ORDER BY
+            g.rn,
+            DECODE(NVL(g.GAME_JOIN_TEAMCOLOR,'GRAY'),
+                'RED',   1,
+                'BLUE',  2,
+                'GREEN', 3,
+                'GRAY',  4,
+                99)
     </select>
+<!--    유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보-->
+    <select id="selectUserTurn" parameterType="Long" resultType="Integer">
+        SELECT GAME_JOIN_IS_TURN
+        FROM TBL_GAME_JOIN
+        WHERE USER_ID = {userId}
+    </select>
+    <select id="selectUserPosition" parameterType="Long" resultType="Integer">
+        SELECT GAME_JOIN_POSITION
+        FROM TBL_GAME_JOIN
+        WHERE USER_ID = {userId}
+    </select>
+<!--    선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경-->
+    <update id="updateUserPosition" parameterType="GameJoinVO">
+        UPDATE TBL_GAME_JOIN SET GAME_JOIN_POSITION = #{gameJoinPosition}
+        WHERE USER_ID = #{userId}
+    </update>
+    <update id="updateUserTurn" parameterType="Long">
+        UPDATE TBL_GAME_JOIN SET GAME_JOIN_IS_TURN = 1
+        WHERE USER_ID = #{userId}
+    </update>
+<!--    게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다. -->
+    <update id="updateAllTurn" parameterType="Long">
+        UPDATE TBL_GAME_JOIN SET GAME_JOIN_IS_TURN = 0
+        WHERE GAME_ROOM_ID = #{gameRoomId}
+    </update>
+
+    <!-- 준비 상태 업데이트 -->
+    <update id="updateReady" parameterType="GameJoinVO">
+        UPDATE TBL_GAME_JOIN
+        SET GAME_JOIN_IS_READY = #{gameJoinIsReady}
+        WHERE USER_ID = #{userId}
+        AND GAME_ROOM_ID = #{gameRoomId}
+    </update>
+
+    <!-- 유저 아이디와 게임방 아이디로 유저 정보 조회 -->
+    <select id="selectGameUserByUserIdAndGameRoom" parameterType="GameJoinVO" resultType="GameJoinVO">
+        SELECT
+            ID,
+            GAME_JOIN_IS_HOST,
+            USER_ID,
+            GAME_ROOM_ID,
+            GAME_JOIN_TEAMCOLOR,
+            GAME_JOIN_CREATE_AT,
+            GAME_JOIN_IS_TURN,
+            GAME_JOIN_POSITION,
+            GAME_JOIN_IS_READY
+        FROM (
+            SELECT
+                ID,
+                GAME_JOIN_IS_HOST,
+                USER_ID,
+                GAME_ROOM_ID,
+                GAME_JOIN_TEAMCOLOR,
+                GAME_JOIN_CREATE_AT,
+                GAME_JOIN_IS_TURN,
+                GAME_JOIN_POSITION,
+                GAME_JOIN_IS_READY
+            FROM TBL_GAME_JOIN
+            WHERE USER_ID = #{userId}
+            AND GAME_ROOM_ID = #{gameRoomId}
+            ORDER BY ID DESC
+        )
+        WHERE ROWNUM = 1
+    </select>
+
 </mapper>
