@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.app.webnest.mapper.CommentMapper">
-    <select id="selectByPostId" parameterType="Long" resultType="CommentDTO">
-        SELECT TBC.ID, TBC.USER_ID, TBC.POST_ID, TBC.COMMENT_DESCRIPTION, TBC.COMMENT_IS_ACCEPT, TBC.COMMENT_CREATE_AT, TBU.USER_NICKNAME, TBP.POST_TYPE
-        FROM TBL_COMMENT TBC
-        JOIN TBL_USER TBU
-        ON TBC.USER_ID = TBU.ID
-        JOIN TBL_POST TBP
-        ON TBC.POST_ID = TBP.ID
-        WHERE POST_ID = #{postId}
+<!--    <select id="selectByPostId" parameterType="Long" resultType="CommentDTO">-->
+<!--        SELECT TBC.ID, TBC.USER_ID, TBC.POST_ID, TBC.COMMENT_DESCRIPTION, TBC.COMMENT_IS_ACCEPT, TBC.COMMENT_CREATE_AT, TBU.USER_NICKNAME, TBP.POST_TYPE-->
+<!--        FROM TBL_COMMENT TBC-->
+<!--        JOIN TBL_USER TBU-->
+<!--        ON TBC.USER_ID = TBU.ID-->
+<!--        JOIN TBL_POST TBP-->
+<!--        ON TBC.POST_ID = TBP.ID-->
+<!--        WHERE POST_ID = #{postId}-->
+<!--    </select>-->
+    <select id="selectByPostId" parameterType="map" resultType="CommentDTO">
+        SELECT C.ID,
+        C.COMMENT_DESCRIPTION,
+        C.USER_ID,
+        C.POST_ID,
+        C.COMMENT_IS_ACCEPT,
+        C.COMMENT_CREATE_AT,
+        U.USER_NICKNAME,
+
+        -- 🔥 좋아요 개수
+        (SELECT COUNT(*) FROM TBL_COMMENT_LIKE L WHERE L.COMMENT_ID = C.ID) AS likeCount,
+
+        -- 🔥 로그인 유저가 좋아요 눌렀는지 여부
+        (SELECT COUNT(*) FROM TBL_COMMENT_LIKE L
+        WHERE L.COMMENT_ID = C.ID
+        AND L.USER_ID = #{userId}) AS liked
+
+        FROM TBL_COMMENT C
+        JOIN TBL_USER U ON U.ID = C.USER_ID
+        WHERE C.POST_ID = #{postId}
+        ORDER BY C.ID DESC
     </select>
+
 
     <!--  답글 작성-->
     <insert id="insertComment" parameterType="CommentVO">
@@ -32,4 +55,12 @@
         DELETE FROM TBL_COMMENT
         WHERE ID = #{id}
     </delete>
+
+<!--    채택   -->
+    <update id="acceptComment">
+        UPDATE TBL_COMMENT
+        SET COMMENT_IS_ACCEPT = 1
+        WHERE ID = #{commentId}
+    </update>
+
 </mapper>

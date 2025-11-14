@@ -3,8 +3,10 @@ package com.app.webnest.mapper;
 import com.app.webnest.domain.dto.PostResponseDTO;
 import com.app.webnest.domain.vo.PostVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Mapper
@@ -33,5 +35,23 @@ public interface PostMapper {
     // 조회수 증가
     public void updatePostViewCount(Long id);
 
+
+
+
+
+
+
+
+//
+//
+//
+
+    public int isPostLiked(Map<String, Long> map);
+
+    public void insertLike(Map<String, Long> map);
+
+    public void deleteLike(Map<String, Long> map);
+
+    public int selectPostLikeCount(Long postId);
 
 }

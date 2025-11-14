@@ -19,4 +19,7 @@ public interface CommentService {
 
     //답글 삭제
     public void removeComment(Long id);
+
+    //채택
+    public void chooseComment(Long commentId);
 }

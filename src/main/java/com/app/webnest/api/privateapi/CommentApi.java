@@ -50,6 +50,19 @@ public class CommentApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 삭제 성공"));
     }
 
+
+    //채택
+    @PostMapping("/choose")
+    public ResponseEntity<?> chooseComment(@RequestBody Map<String, Long> data) {
+        Long commentId = data.get("commentId");
+
+        commentService.chooseComment(commentId);
+
+        return ResponseEntity.ok(Map.of(
+                "success", true
+        ));
+    }
+
 }
 
 

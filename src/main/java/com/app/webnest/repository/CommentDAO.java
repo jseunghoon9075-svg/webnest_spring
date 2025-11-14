@@ -34,4 +34,9 @@ public class CommentDAO {
     public void delete(Long id){
         commentMapper.deleteComment(id);
     }
+
+    //채택
+    public void choose(Long commentId) {
+        commentMapper.acceptComment(commentId);
+    }
 }
