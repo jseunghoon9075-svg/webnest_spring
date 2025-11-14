@@ -38,6 +38,11 @@ public class GameJoinServiceImpl implements GameJoinService {
     }
 
     @Override
+    public void update(GameJoinVO gameJoinVO){
+        gameJoinDAO.save(gameJoinVO);
+    }
+
+    @Override
     public Optional<GameJoinVO> getGameJoinDTOByGameRoomId(GameJoinVO gameJoinVO){
         return gameJoinDAO.findUserInGameRoom(gameJoinVO);
     };

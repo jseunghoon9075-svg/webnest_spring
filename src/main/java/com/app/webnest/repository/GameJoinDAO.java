@@ -37,25 +37,33 @@ public class GameJoinDAO {
         gameJoinMapper.updateTeamColor(gameJoinVO);
     }
 
-    //    현재 방에 있는 유저 리스트를 가져온다.-->
-    public List<GameJoinDTO> findUserListByGameRoomId(Long gameRoomId) {
-        return gameJoinMapper.selectAll(gameRoomId);
+    // 일반 업데이트 (원격에서 추가된 메서드)
+    public void update(GameJoinVO gameJoinVO){
+        gameJoinMapper.update(gameJoinVO);
     }
-//<!--    유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보-->
+
+    // 현재 방에 있는 유저 리스트를 가져온다.
+    public List<GameJoinDTO> findUserListByGameRoomId(Long gameRoomId) {
+        return gameJoinMapper.selectUserListByGameRoomId(gameRoomId);
+    }
+    
+    // 유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보
     public Integer findUserTurn(Long userId) {
         return gameJoinMapper.selectUserTurn(userId);
     }
     public Integer findUserPosition(Long userId) {
         return gameJoinMapper.selectUserPosition(userId);
     }
-//            <!--    선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경-->
+    
+    // 선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경
     public void modifyUserTurn(Long userId){
         gameJoinMapper.updateUserTurn(userId);
     }
     public void modifyUserPosition(GameJoinVO gameJoinVO){
         gameJoinMapper.updateUserPosition(gameJoinVO);
     }
-//<!--    게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다.
+    
+    // 게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다.
     public void modifyAllTurn(Long gameRoomId){
         gameJoinMapper.updateAllTurn(gameRoomId);
     }

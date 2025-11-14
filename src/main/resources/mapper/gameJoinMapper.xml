@@ -6,17 +6,34 @@
     <!-- 방에 있는 모든 유저 조회 -->
     <select id="selectAll" parameterType="Long" resultType="GameJoinDTO">
         SELECT
-        TBGJ.ID, TBGJ.GAME_JOIN_IS_HOST, TBGJ.USER_ID, TBGJ.GAME_ROOM_ID,TBGJ.GAME_JOIN_TEAMCOLOR, TBGJ.GAME_JOIN_CREATE_AT,
+        TBGJ.ID, TBGJ.GAME_JOIN_IS_HOST, TBGJ.USER_ID, TBGJ.GAME_ROOM_ID,TBGJ.GAME_JOIN_TEAMCOLOR, TBGJ.GAME_JOIN_MYTURN, TBGJ.GAME_JOIN_PROFILE_TEXT, TBGJ.GAME_JOIN_CREATE_AT,
         TBU.USER_NAME, TBU.USER_BIRTHDAY, TBU.USER_EMAIL, TBU.USER_PHONE, TBU.USER_EXP, TBU.USER_THUMBNAIL_NAME, TBU.USER_THUMBNAIL_URL, TBU.USER_NICKNAME
         FROM TBL_GAME_JOIN TBGJ
         JOIN TBL_USER TBU
         ON TBGJ.USER_ID = TBU.ID AND TBGJ.GAME_ROOM_ID = #{gameRoomId}
     </select>
 
+    <select id="selectGameUserByUserIdAndGameRoom" parameterType="GameJoinVO" resultType="GameJoinVO">
+        SELECT ID, GAME_JOIN_IS_HOST, USER_ID ,GAME_ROOM_ID
+        FROM TBL_GAME_JOIN
+        WHERE USER_ID = #{userId} AND #{gameRoomId}
+    </select>
+
     <insert id="insert" parameterType="GameJoinVO">
         INSERT INTO TBL_GAME_JOIN(ID, GAME_JOIN_IS_HOST, USER_ID, GAME_ROOM_ID)
         VALUES (SEQ_GAME_JOIN.NEXTVAL, #{gameJoinIsHost}, #{userId}, #{gameRoomId})
     </insert>
+
+    <update id="update" parameterType="GameJoinVO">
+        UPDATE TBL_GAME_JOIN
+        SET
+            GAME_JOIN_IS_HOST = #{gameJoinIsHost},
+            GAME_JOIN_TEAMCOLOR = #{gameJoinTeamcolor}
+        WHERE
+            GAME_ROOM_ID = #{gameRoomId}
+        AND
+            USER_ID = #{userId}
+    </update>
 
     <delete id="delete" parameterType="GameJoinVO">
         DELETE FROM TBL_GAME_JOIN
@@ -25,7 +42,6 @@
         AND
             GAME_ROOM_ID = #{gameRoomId}
     </delete>
-
     <update id="updateTeamColor" parameterType="GameJoinVO">
         UPDATE TBL_GAME_JOIN
         SET GAME_JOIN_TEAMCOLOR = #{gameJoinTeamcolor}
@@ -79,12 +95,12 @@
     <select id="selectUserTurn" parameterType="Long" resultType="Integer">
         SELECT GAME_JOIN_IS_TURN
         FROM TBL_GAME_JOIN
-        WHERE USER_ID = {userId}
+        WHERE USER_ID = #{userId}
     </select>
     <select id="selectUserPosition" parameterType="Long" resultType="Integer">
         SELECT GAME_JOIN_POSITION
         FROM TBL_GAME_JOIN
-        WHERE USER_ID = {userId}
+        WHERE USER_ID = #{userId}
     </select>
 <!--    선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경-->
     <update id="updateUserPosition" parameterType="GameJoinVO">

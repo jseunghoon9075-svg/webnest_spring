@@ -34,5 +34,7 @@ public interface GameJoinService {
     // 게임방 플레이어 전체 조회
     public List<GameJoinDTO> getPlayers(Long gameRoomId);
 
+    public void update(GameJoinVO gameJoinVO);
+
     public Optional<GameJoinVO> getGameJoinDTOByGameRoomId(GameJoinVO gameJoinVO);
 }
