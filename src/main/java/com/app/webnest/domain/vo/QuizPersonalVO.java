@@ -5,7 +5,7 @@ import lombok.*;
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter @ToString @EqualsAndHashCode(of = "id")
 public class QuizPersonalVO {
-    private Long id;
+    private Long quizPersonalId;
     //erd 확인 fk키
     private Integer quizPersonalIsSolve;
     private Integer quizPersonalIsBookmark;

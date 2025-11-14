@@ -12,14 +12,18 @@ import com.app.webnest.exception.QuizException;
 import com.app.webnest.service.JavaCompileService;
 import com.app.webnest.service.QuizService;
 import com.app.webnest.service.UserService;
+import com.app.webnest.util.JwtTokenUtil;
 import com.sun.security.auth.UserPrincipal;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.script.ScriptEngine;
@@ -38,49 +42,66 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuizApi {
 
+    private final JwtTokenUtil jwtTokenUtil;
     private final JavaCompileService javaCompileService;
     private final QuizService quizService;
     private final UserService userService;
 
 
     @PostMapping("/quiz")
-    public ResponseEntity<ApiResponseDTO<Map<String, Object>>> getQuizList(@RequestBody Map<String,Object> params, QuizResponseDTO quizResponseDTO) {
+    public ResponseEntity<ApiResponseDTO<Map<String, Object>>> getQuizList(
+            @RequestBody Map<String,Object> params,
+            QuizResponseDTO quizResponseDTO,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         // 쿼리에 넘길 Map 구성
         if (params == null) params = new HashMap<>();
+        log.info("params: {}", params);
+        String token = null;
+        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
+            token = authorizationHeader.substring(7);
+        }
 
-        //        전체 문제 수
-        // 안전한 파싱 및 기본값
+        String findUserEmail = (String) jwtTokenUtil.getUserEmailFromToken(token).get("userEmail");
+
+        Long findUserId = userService.getUserIdByUserEmail(findUserEmail);
+        Long userId = findUserId != null ? findUserId : null;
+
         String quizLanguage = params.get("quizLanguage") == null ? null : String.valueOf(params.get("quizLanguage"));
         String quizDifficult = params.get("quizDifficult") == null ? null : String.valueOf(params.get("quizDifficult"));
         String keyword = params.get("keyword") == null ? null : String.valueOf(params.get("keyword"));
+        String quizPersonalIsSolve = params.get("quizPersonalIsSolve") == null ? null : String.valueOf(params.get("quizPersonalIsSolve"));
+
 
         int page = 1;
+        int pageSize = 10; // 한 페이지에 보여줄 개수(필요시 params로 받을 수 있음)
         if (params.get("page") != null) {
             try {
-                page = Integer.parseInt(String.valueOf(params.get("page"))); // 들어오는 현재페이지번호 ex) Object타입의 "1" String으로 형변환후 Integer로 다시 형변환해서 처리
+                page = Integer.parseInt(String.valueOf(params.get("page")));
                 if (page < 1) page = 1;
             } catch (NumberFormatException ignored) {}
         }
 
-        Long userId = quizResponseDTO != null ? quizResponseDTO.getUserId() : null;
+        int offset = (page - 1) * pageSize;
 
-//                 화면에서 받아올 값
+
         HashMap<String, Object> filters = new HashMap<>();
         filters.put("quizLanguage", quizLanguage);
         filters.put("quizDifficult", quizDifficult);
         filters.put("keyword", keyword);
-        filters.put("page", page); // 매퍼에서 page로 OFFSET 계산
+        filters.put("quizPersonalIsSolve", quizPersonalIsSolve);
+        filters.put("offset", offset);      // 매퍼에서 사용할 이름
+        filters.put("pageSize", pageSize);  // 매퍼에서 사용할 이름
         filters.put("userId", userId);
 
-        List<QuizPersonalDTO> findQuizList = quizService.findQuizPersonal(filters); // service에서 매퍼 호출
+        List<QuizPersonalDTO> findQuizList = quizService.findQuizPersonal(filters);
         if (findQuizList == null) findQuizList = new ArrayList<>();
 
-
-        Long quizTotalCount = quizService.quizCount(filters);
+        Long quizTotalCount = quizService.quizCount(filters); // quizCount 쿼리는 TBL_QUIZ 기준으로 count 하도록 유지
         Map<String,Object> data = new HashMap<>();
         data.put("findQuizList", findQuizList);
         data.put("quizTotalCount", quizTotalCount);
         data.put("page", page);
+
 
         return ResponseEntity.ok(ApiResponseDTO.of("문제리스트 불러오기", data));
     };
@@ -91,8 +112,6 @@ public class QuizApi {
             @PathVariable("quizId") Long quizId
     ) {
 
-        try {
-        log.info("toggleBookmark called pathQuizId={}, rawBodyPresent={}", quizId, /* no direct raw body */ true);
         HashMap<String, Object> data = new HashMap<>();
         if(quizResponseDTO == null || quizResponseDTO.getUserId() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDTO.of("유저 아이디가 필요함", null));
@@ -104,6 +123,7 @@ public class QuizApi {
         dto.setUserId(userId);
         dto.setQuizId(quizId);
             quizService.isBookmarked(dto);
+            quizService.isSolved(dto);
 
             // 최신 상태 조회
             QuizPersonalVO quizPersonalVO = quizService.findQuizPersonalById(dto);
@@ -117,21 +137,8 @@ public class QuizApi {
             }
 
             data.put("quizPersonal", quizPersonalVO);
-            log.info("isBookmarked returned: {}", quizPersonalVO.getQuizPersonalIsBookmark());
-
-
-
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("응답 성공", data));
-        } catch (Exception e) {
-            log.error("isBookmarked failed: {}", e.toString(), e); // 전체 스택트레이스 로그
-            Throwable cause = e.getCause();
-            while (cause != null) {
-                log.error("Caused by: {}", cause.toString());
-                cause = cause.getCause();
-            }
-            throw e; // 또는 적절한 에러 응답 반환
-        }
     }
 
 

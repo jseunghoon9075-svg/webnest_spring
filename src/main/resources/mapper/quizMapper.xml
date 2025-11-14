@@ -26,24 +26,34 @@
             OFFSET (#{page} - 1) * 10 ROWS FETCH NEXT 10 ROWS ONLY
         </if>
     </select>
-<!--    북마크,해결여부 조인쿼리-->
-    <select id="selectQuizWithPersonal" parameterType="Map" resultType="QuizPersonalDTO">
+    <select id="selectQuizWithPersonal" parameterType="map" resultType="QuizPersonalDTO">
         SELECT
-            Q.ID,
-            Q.QUIZ_CATEGORY as quizCategory,
-            Q.QUIZ_DESCRIPTION as quizDescription,
-            Q.QUIZ_DIFFICULT as quizDifficult,
-            Q.QUIZ_EXP as quizExp,
-            Q.QUIZ_EXPECTATION as quizExpectation,
-            Q.QUIZ_TITLE as quizTitle,
-            Q.QUIZ_LANGUAGE as quizLanguage,
-            P.QUIZ_PERSONAL_IS_BOOKMARK AS quizPersonalIsBookmark,
-            P.QUIZ_PERSONAL_IS_SOLVE AS quizPersonalIsSolve,
-            P.USER_ID as userId,
-            P.QUIZ_ID as quizId
+            Q.ID AS id,
+            Q.QUIZ_TITLE AS quizTitle,
+            Q.QUIZ_DESCRIPTION AS quizDescription,
+            Q.QUIZ_CATEGORY AS quizCategory,
+            Q.QUIZ_DIFFICULT AS quizDifficult,
+            Q.QUIZ_LANGUAGE AS quizLanguage,
+            Q.QUIZ_EXPECTATION AS quizExpectation,
+            Q.QUIZ_EXP AS quizExp,
+            P.quizPersonalId AS quizPersonalId,
+            COALESCE(P.quizPersonalIsSolve, 0) AS quizPersonalIsSolve,
+            COALESCE(P.quizPersonalIsBookmark, 0) AS quizPersonalIsBookmark,
+            P.userId AS userId,
+            P.quizId AS quizId
         FROM TBL_QUIZ Q
-            LEFT JOIN TBL_QUIZ_PERSONAL P
-        ON Q.ID = P.QUIZ_ID AND P.USER_ID = #{userId}
+         LEFT JOIN (
+            SELECT
+            QUIZ_ID AS quizId,
+            USER_ID AS userId,
+            MAX(ID) AS quizPersonalId,
+            MAX(QUIZ_PERSONAL_IS_BOOKMARK) AS quizPersonalIsBookmark,
+            MAX(QUIZ_PERSONAL_IS_SOLVE) AS quizPersonalIsSolve
+            FROM TBL_QUIZ_PERSONAL
+            WHERE USER_ID = #{userId}
+            GROUP BY QUIZ_ID, USER_ID
+        ) P
+        ON Q.ID = P.quizId
         WHERE 1 = 1
         <if test="quizLanguage != null and quizLanguage != ''">
             AND Q.QUIZ_LANGUAGE = #{quizLanguage}
@@ -51,14 +61,19 @@
         <if test="quizDifficult != null and quizDifficult != ''">
             AND Q.QUIZ_DIFFICULT = #{quizDifficult}
         </if>
+        <if test="quizPersonalIsSolve != null and quizPersonalIsSolve != ''">
+            AND P.QUIZ_PERSONAL_IS_SOLVE = #{quizPersonalIsSolve}
+        </if>
         <if test="keyword != null and keyword != ''">
             AND (Q.QUIZ_TITLE LIKE CONCAT('%', #{keyword}, '%') OR Q.QUIZ_DESCRIPTION LIKE CONCAT('%', #{keyword}, '%'))
         </if>
         ORDER BY Q.ID ASC
-        <if test="page != null">
-            OFFSET (#{page} - 1) * 10 ROWS FETCH NEXT 10 ROWS ONLY
+        <if test="offset != null and pageSize != null">
+            OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
         </if>
     </select>
+
+
 
 
     <!--    전체 퀴즈리스트-->
