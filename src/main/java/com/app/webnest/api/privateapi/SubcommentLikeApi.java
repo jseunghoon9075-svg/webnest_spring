@@ -1,6 +1,7 @@
 package com.app.webnest.api.privateapi;
 
 import com.app.webnest.domain.dto.ApiResponseDTO;
+import com.app.webnest.domain.vo.CommentVO;
 import com.app.webnest.domain.vo.SubcommentLikeVO;
 import com.app.webnest.service.CommentLikeService;
 import com.app.webnest.service.SubcommentLikeService;
@@ -28,6 +29,22 @@ public class SubcommentLikeApi {
                 .body(ApiResponseDTO.of("댓글 좋아요 수 조회 성공", likeCount));
     }
 
+    @PostMapping("/subcommentlike")
+    public ResponseEntity<ApiResponseDTO> writeComments(@RequestBody SubcommentLikeVO subcommentLikeVO) {
+        Map<String, Long> response = subcommentLikeService.save(subcommentLikeVO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.of("대댓글 좋아요 완료", response));
+    }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponseDTO> updatePost(@RequestBody Long id) {
+        subcommentLikeService.deleteSubcommentLike(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 삭제 성공"));
+    }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<ApiResponseDTO> deletePost(@RequestBody SubcommentLikeVO subcommentLikeVO) {
+        subcommentLikeService.deleteSubcommentLike(subcommentLikeVO.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("ㄱㄱㄱㄱㄱ"));
+    }
 
 }

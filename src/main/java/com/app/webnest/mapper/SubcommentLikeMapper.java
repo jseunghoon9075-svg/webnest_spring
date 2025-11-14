@@ -11,6 +11,10 @@ public interface SubcommentLikeMapper {
     // 게시글 상세에서 좋아요 개수
     public int selectByPostIdcount (Long subcommentId);
 
+    public void delete (Long id);
+
+
+    void deleteByUserAndSubcomment(SubcommentLikeVO subcommentLikeVO);
 
 
 }

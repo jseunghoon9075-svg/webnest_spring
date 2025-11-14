@@ -11,10 +11,22 @@ import org.springframework.stereotype.Repository;
 public class SubcommentLikeDAO {
     private final SubcommentLikeMapper subcommentLikeMapper;
 
-    public void save(SubcommentLikeVO subcommentLikeVO) {
+    public Long save(SubcommentLikeVO subcommentLikeVO) {
         subcommentLikeMapper.insert(subcommentLikeVO);
+        return subcommentLikeVO.getId();
     }
+
+
     public int findSubcommentLike(Long subcommentId) {
         return subcommentLikeMapper.selectByPostIdcount(subcommentId);
     }
+
+    public void remove(Long id) {
+        subcommentLikeMapper.delete(id);
+    }
+
+    public void remove2(SubcommentLikeVO subcommentLikeVO) {
+        subcommentLikeMapper.deleteByUserAndSubcomment(subcommentLikeVO);
+    }
+
 }

@@ -17,13 +17,19 @@ class SubcommentLikeMapperTest {
     @Test
     void insert() {
         SubcommentLikeVO subcommentLikeVO = new SubcommentLikeVO();
-        subcommentLikeVO.setId(20L);
-        subcommentLikeVO.setPostId(2L);
+        subcommentLikeVO.setUserId(20L);
         subcommentLikeVO.setSubcommentId(3L);
         subcommentLikeMapper.insert(subcommentLikeVO);
     }
 
     @Test
     void selectByPostIdcount() {
+    }
+
+    @Test
+    void delete() {
+      subcommentLikeMapper.delete(3L);
+
+
     }
 }

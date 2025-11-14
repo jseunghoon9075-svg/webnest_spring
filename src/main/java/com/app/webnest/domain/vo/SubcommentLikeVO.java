@@ -7,6 +7,5 @@ import lombok.*;
 public class SubcommentLikeVO {
     private Long id;
     private Long userId;
-    private Long postId;
     private Long subcommentId;
 }

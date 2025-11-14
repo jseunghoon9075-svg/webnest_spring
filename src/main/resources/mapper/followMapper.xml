@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.webnest.mapper.QuizMapper">
+
+    <insert id="insert " parameterType="FollowVO">
+        <selectKey keyProperty="id" order="BEFORE" resultType="Long">
+            SELECT SEQ_FOLLOW.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TBL_FOLLOW(ID, USER_ID, FOLLOWER_ID, FOLLOW_CREATE_AT)
+        VALUES (#{id}, #{userId}, #{followerId}, #{followCreateAt})
+    </insert>
+
+    <select id="selectAll" resultType="FollowVO">
+
+    </select>
+
+</mapper>

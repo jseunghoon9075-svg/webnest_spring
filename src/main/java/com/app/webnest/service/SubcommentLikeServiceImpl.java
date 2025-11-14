@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -14,13 +17,27 @@ public class SubcommentLikeServiceImpl implements SubcommentLikeService {
     private final SubcommentLikeDAO subcommentLikeDAO;
 
     @Override
-    public void save(SubcommentLikeVO  subcommentLikeVO) {
-        subcommentLikeDAO.save(subcommentLikeVO);
+    public Map<String, Long> save(SubcommentLikeVO  subcommentLikeVO) {
+        Map<String, Long> response = new HashMap<>();
+        Long newPostId = subcommentLikeDAO.save(subcommentLikeVO);
+        response.put("newPostId", newPostId);
+        return response;
     }
 
     @Override
     public int getSubcommentLike(Long subcommentId) {
         return subcommentLikeDAO.findSubcommentLike(subcommentId);
     }
+
+    @Override
+    public void deleteSubcommentLike(Long id) {
+        subcommentLikeDAO.remove(id);
+    }
+    @Override
+    public void deleteByUserAndSubcomment(SubcommentLikeVO subcommentLikeVO) {
+        subcommentLikeDAO.remove2(subcommentLikeVO);
+    }
+
+
 }
 

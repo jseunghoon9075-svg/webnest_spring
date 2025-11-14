@@ -6,9 +6,9 @@
 
     <insert id="insert" parameterType="SubcommentLikeVO">
         <selectKey keyProperty="id" order="BEFORE" resultType="Long">
-            SELECT SEQ_POST.NEXTVAL FROM DUAL
+            SELECT SEQ_SUBCOMMENT_LIKE.NEXTVAL FROM DUAL
         </selectKey>
-        INSERT INTO TBL_SUBCOMMENT_LIKE(ID,USER_ID,  SUBCOMMENT_ID)
+        INSERT INTO TBL_SUBCOMMENT_LIKE(ID,USER_ID, SUBCOMMENT_ID)
         VALUES (#{id}, #{userId}, #{subcommentId})
     </insert>
 
@@ -17,4 +17,21 @@
         FROM TBL_SUBCOMMENT_LIKE
         WHERE SUBCOMMENT_ID= #{subcommentId}
     </select>
+
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM TBL_SUBCOMMENT_LIKE
+        WHERE ID = #{id}
+    </delete>
+
+<!--    -->
+    <delete id="deleteByUserAndSubcomment" parameterType="SubcommentLikeVO">
+        DELETE FROM TBL_SUBCOMMENT_LIKE
+        WHERE USER_ID = #{userId}
+        AND SUBCOMMENT_ID = #{subcommentId} AND ID = #{id}
+    </delete>
+
+
+
+
 </mapper>
