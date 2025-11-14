@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,5 +24,15 @@ public class CommentLikeApi {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponseDTO.of("댓글 좋아요 수 조회 성공", likeCount));
+    }
+
+    @PostMapping("/toggle")
+    public ResponseEntity<ApiResponseDTO> toggle(
+            @RequestParam Long commentId,
+            @RequestParam Long postId,
+            @RequestParam Long userId
+    ) {
+        Map<String, Object> result = commentLikeService.toggleLike(commentId, postId, userId);
+        return ResponseEntity.ok(ApiResponseDTO.of("댓글 좋아요 토글 성공", result));
     }
 }

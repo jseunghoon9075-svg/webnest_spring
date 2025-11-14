@@ -20,4 +20,8 @@ public interface CommentMapper {
 
     //답글 삭제
     public void deleteComment(Long id);
+
+    //채택
+    public void acceptComment(Long commentId);
+
 }

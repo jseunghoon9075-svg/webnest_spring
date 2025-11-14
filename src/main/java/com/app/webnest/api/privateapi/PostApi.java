@@ -48,11 +48,40 @@ public class PostApi {
     }
 
 
-    // 상세 조회
+//    // 상세 조회
+//    @GetMapping("get-post/{id}")
+//    public ResponseEntity<ApiResponseDTO> getPost(@PathVariable Long id) {
+//        PostResponseDTO post = postService.getPost(id);
+//        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 조회 성공", post));
+//    }
+//
+//    //조회수 증가 안됨
+//    @GetMapping("/get-post-no-view/{id}")
+//    public ResponseEntity<ApiResponseDTO> getPostNoView(@PathVariable Long id) {
+//        PostResponseDTO post = postService.getPostWithoutView(id);
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(ApiResponseDTO.of("조회수 증가 없이 조회", post));
+//    }
+    // 조회수 증가 O
     @GetMapping("get-post/{id}")
-    public ResponseEntity<ApiResponseDTO> getPost(@PathVariable Long id) {
-        PostResponseDTO post = postService.getPost(id);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게시글 조회 성공", post));
+    public ResponseEntity<ApiResponseDTO> getPost(
+            @PathVariable Long id,
+            @RequestParam Long userId
+    ){
+        PostResponseDTO post = postService.getPost(id, userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponseDTO.of("게시글 조회 성공", post));
+    }
+
+    // 조회수 증가 X
+    @GetMapping("/get-post-no-view/{id}")
+    public ResponseEntity<ApiResponseDTO> getPostNoView(
+            @PathVariable Long id,
+            @RequestParam Long userId
+    ){
+        PostResponseDTO post = postService.getPostWithoutView(id, userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponseDTO.of("조회수 증가 없이 조회", post));
     }
 
     // 마이페이지 - 열린둥지 전체
@@ -85,4 +114,20 @@ public class PostApi {
         Map<String, Long> response = postService.write(postVO);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDTO.of("게시글 작성 완료", response));
     }
+
+
+
+
+    @PostMapping("/like")
+    public ResponseEntity<ApiResponseDTO> toggleLike(
+            @RequestParam Long postId,
+            @RequestParam Long userId
+    ) {
+        Map<String, Object> result = postService.togglePostLike(postId, userId);
+        return ResponseEntity.ok(ApiResponseDTO.of("좋아요 변경 완료", result));
+    }
+
+
+
+
 }

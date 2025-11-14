@@ -8,4 +8,39 @@
         FROM TBL_COMMENT_LIKE
         WHERE COMMENT_ID= #{commentId}
     </select>
+
+
+
+
+
+
+
+    <!-- 특정 댓글에 로그인 유저가 좋아요 눌렀는지 -->
+    <select id="isLiked" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM TBL_COMMENT_LIKE
+        WHERE COMMENT_ID = #{commentId}
+        AND USER_ID = #{userId}
+    </select>
+
+    <!-- 좋아요 추가 -->
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO TBL_COMMENT_LIKE (ID, USER_ID, POST_ID, COMMENT_ID)
+        VALUES (SEQ_COMMENT_LIKE.NEXTVAL, #{userId}, #{postId}, #{commentId})
+    </insert>
+
+    <!-- 좋아요 삭제 -->
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM TBL_COMMENT_LIKE
+        WHERE COMMENT_ID = #{commentId}
+        AND USER_ID = #{userId}
+    </delete>
+
+    <!-- 좋아요 개수 조회 -->
+    <select id="countLike" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM TBL_COMMENT_LIKE
+        WHERE COMMENT_ID = #{commentId}
+    </select>
+
 </mapper>

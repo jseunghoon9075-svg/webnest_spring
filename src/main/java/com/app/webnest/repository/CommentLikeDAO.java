@@ -5,6 +5,9 @@ import com.app.webnest.mapper.CommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Repository
 @RequiredArgsConstructor
 public class CommentLikeDAO {
@@ -14,4 +17,43 @@ public class CommentLikeDAO {
         return commentLikeMapper.selectByPostIdcount(commentId);
     }
 //    int selectByPostIdcount (Long commentId);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public boolean isLiked(Long commentId, Long userId) {
+        Map<String, Long> map = new HashMap<>();
+        map.put("commentId", commentId);
+        map.put("userId", userId);
+        return commentLikeMapper.isLiked(map) > 0;
+    }
+
+    public void addLike(Long commentId, Long postId, Long userId) {
+        Map<String, Long> map = new HashMap<>();
+        map.put("commentId", commentId);
+        map.put("postId", postId);
+        map.put("userId", userId);
+        commentLikeMapper.insertLike(map);
+    }
+
+    public void removeLike(Long commentId, Long userId) {
+        Map<String, Long> map = new HashMap<>();
+        map.put("commentId", commentId);
+        map.put("userId", userId);
+        commentLikeMapper.deleteLike(map);
+    }
+
+    public int countLike(Long commentId) {
+        return commentLikeMapper.countLike(commentId);
+    }
 }

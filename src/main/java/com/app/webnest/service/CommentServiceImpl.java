@@ -45,6 +45,12 @@ public class CommentServiceImpl implements CommentService {
         commentDAO.delete(id);
     }
 
+    //채택
+    @Override
+    public void chooseComment(Long commentId) {
+        commentDAO.choose(commentId);
+    }
+
 
 }
 
