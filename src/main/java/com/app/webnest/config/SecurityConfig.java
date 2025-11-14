@@ -33,6 +33,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())      // CSRF 비활성화
             .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/ws/**", "/ws").permitAll() // WebSocket 엔드포인트 허용
                     .requestMatchers("/private/**").authenticated()
                     .anyRequest().permitAll() // 모든 요청 허용
             )
@@ -85,6 +86,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000"); // React 앱 주소
+        configuration.addAllowedOriginPattern("*"); // 모든 origin 허용 (테스트용, HTML 파일 직접 열기 지원)
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 요청 헤더 허용
         configuration.setAllowCredentials(true); // 인증 정보 허용 - cookie 허용

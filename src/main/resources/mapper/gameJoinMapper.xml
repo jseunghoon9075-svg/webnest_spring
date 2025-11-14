@@ -6,17 +6,28 @@
     <!-- 방에 있는 모든 유저 조회 -->
     <select id="selectAll" parameterType="Long" resultType="GameJoinDTO">
         SELECT
-        TBGJ.ID, TBGJ.GAME_JOIN_IS_HOST, TBGJ.USER_ID, TBGJ.GAME_ROOM_ID,TBGJ.GAME_JOIN_TEAMCOLOR, TBGJ.GAME_JOIN_MYTURN, TBGJ.GAME_JOIN_PROFILE_TEXT, TBGJ.GAME_JOIN_CREATE_AT,
-        TBU.USER_NAME, TBU.USER_BIRTHDAY, TBU.USER_EMAIL, TBU.USER_PHONE, TBU.USER_EXP, TBU.USER_THUMBNAIL_NAME, TBU.USER_THUMBNAIL_URL, TBU.USER_NICKNAME
+        TBGJ.ID, 
+        TBGJ.GAME_JOIN_IS_HOST, 
+        TBGJ.USER_ID, 
+        TBGJ.GAME_ROOM_ID,
+        TBGJ.GAME_JOIN_TEAMCOLOR, 
+        TBGJ.GAME_JOIN_CREATE_AT,
+        TBGJ.GAME_JOIN_IS_TURN,
+        TBGJ.GAME_JOIN_POSITION,
+        TBGJ.GAME_JOIN_IS_READY,
+        TBU.USER_NAME, 
+        TBU.USER_BIRTHDAY, 
+        TBU.USER_EMAIL, 
+        TBU.USER_PHONE, 
+        TBU.USER_EXP, 
+        TBU.USER_LEVEL,
+        TBU.USER_THUMBNAIL_NAME, 
+        TBU.USER_THUMBNAIL_URL, 
+        TBU.USER_NICKNAME
         FROM TBL_GAME_JOIN TBGJ
         JOIN TBL_USER TBU
-        ON TBGJ.USER_ID = TBU.ID AND TBGJ.GAME_ROOM_ID = #{gameRoomId}
-    </select>
-
-    <select id="selectGameUserByUserIdAndGameRoom" parameterType="GameJoinVO" resultType="GameJoinVO">
-        SELECT ID, GAME_JOIN_IS_HOST, USER_ID ,GAME_ROOM_ID
-        FROM TBL_GAME_JOIN
-        WHERE USER_ID = #{userId} AND #{gameRoomId}
+        ON TBGJ.USER_ID = TBU.ID 
+        WHERE TBGJ.GAME_ROOM_ID = #{gameRoomId}
     </select>
 
     <insert id="insert" parameterType="GameJoinVO">
@@ -92,20 +103,33 @@
                 99)
     </select>
 <!--    유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보-->
-    <select id="selectUserTurn" parameterType="Long" resultType="Integer">
+    <select id="selectUserTurn" parameterType="GameJoinVO" resultType="Integer">
         SELECT GAME_JOIN_IS_TURN
-        FROM TBL_GAME_JOIN
-        WHERE USER_ID = #{userId}
+        FROM (
+            SELECT GAME_JOIN_IS_TURN
+            FROM TBL_GAME_JOIN
+            WHERE USER_ID = #{userId}
+            AND GAME_ROOM_ID = #{gameRoomId}
+            ORDER BY ID DESC
+        )
+        WHERE ROWNUM = 1
     </select>
-    <select id="selectUserPosition" parameterType="Long" resultType="Integer">
+    <select id="selectUserPosition" parameterType="GameJoinVO" resultType="Integer">
         SELECT GAME_JOIN_POSITION
-        FROM TBL_GAME_JOIN
-        WHERE USER_ID = #{userId}
+        FROM (
+            SELECT GAME_JOIN_POSITION
+            FROM TBL_GAME_JOIN
+            WHERE USER_ID = #{userId}
+            AND GAME_ROOM_ID = #{gameRoomId}
+            ORDER BY ID DESC
+        )
+        WHERE ROWNUM = 1
     </select>
 <!--    선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경-->
     <update id="updateUserPosition" parameterType="GameJoinVO">
         UPDATE TBL_GAME_JOIN SET GAME_JOIN_POSITION = #{gameJoinPosition}
         WHERE USER_ID = #{userId}
+        AND GAME_ROOM_ID = #{gameRoomId}
     </update>
     <update id="updateUserTurn" parameterType="Long">
         UPDATE TBL_GAME_JOIN SET GAME_JOIN_IS_TURN = 1
@@ -114,6 +138,18 @@
 <!--    게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다. -->
     <update id="updateAllTurn" parameterType="Long">
         UPDATE TBL_GAME_JOIN SET GAME_JOIN_IS_TURN = 0
+        WHERE GAME_ROOM_ID = #{gameRoomId}
+    </update>
+
+    <!-- 게임 종료 시 모든 플레이어 포지션 초기화 -->
+    <update id="resetAllPosition" parameterType="Long">
+        UPDATE TBL_GAME_JOIN SET GAME_JOIN_POSITION = 0
+        WHERE GAME_ROOM_ID = #{gameRoomId}
+    </update>
+
+    <!-- 게임 종료 시 모든 플레이어 레디 상태 초기화 -->
+    <update id="resetAllReady" parameterType="Long">
+        UPDATE TBL_GAME_JOIN SET GAME_JOIN_IS_READY = 0
         WHERE GAME_ROOM_ID = #{gameRoomId}
     </update>
 

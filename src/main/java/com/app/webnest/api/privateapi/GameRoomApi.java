@@ -1,8 +1,10 @@
 package com.app.webnest.api.privateapi;
 
 import com.app.webnest.domain.dto.ApiResponseDTO;
+import com.app.webnest.domain.dto.GameJoinDTO;
 import com.app.webnest.domain.dto.GameRoomDTO;
 import com.app.webnest.repository.GameRoomDAO;
+import com.app.webnest.service.GameJoinService;
 import com.app.webnest.service.GameRoomService;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
@@ -21,6 +23,7 @@ import java.util.List;
 public class GameRoomApi {
 
     private final GameRoomService gameRoomService;
+    private final GameJoinService gameJoinService;
 
     @GetMapping("")
     public ResponseEntity<ApiResponseDTO<List<GameRoomDTO>>> getRooms() {
@@ -34,5 +37,16 @@ public class GameRoomApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("채팅방 목록조회", room));
     }
 
+    /**
+     * 게임 상태 조회 (플레이어 위치, 턴, 레디 상태 등)
+     * GET /private/game-rooms/{gameRoomId}/game-state
+     * 채팅의 getChats처럼 초기 로드 시 사용
+     */
+    @GetMapping("/{gameRoomId}/game-state")
+    public ResponseEntity<ApiResponseDTO<List<GameJoinDTO>>> getGameState(@PathVariable Long gameRoomId) {
+        List<GameJoinDTO> gameState = gameJoinService.getArrangeUserByTurn(gameRoomId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponseDTO.of("게임 상태 조회 성공", gameState));
+    }
 
 }

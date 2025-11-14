@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임 멀티플레이어 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .log { background: #f5f5f5; padding: 10px; height: 300px; overflow-y: auto; font-size: 12px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>게임 멀티플레이어 테스트</h1>
+        
+        <div class="section">
+            <h2>연결 설정</h2>
+            <input type="text" id="gameRoomId" placeholder="게임방 ID" value="1">
+            <input type="text" id="userId" placeholder="유저 ID" value="1">
+            <button onclick="connect()">연결</button>
+            <button onclick="disconnect()">연결 해제</button>
+            <div id="connectionStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>게임 액션</h2>
+            <button onclick="updateReady()">준비하기</button>
+            <button onclick="startGame()">게임 시작</button>
+            <button onclick="rollDice()">주사위 굴리기</button>
+            <button onclick="getGameState()">게임 상태 조회</button>
+        </div>
+
+        <div class="section">
+            <h2>응답 로그</h2>
+            <div id="log" class="log"></div>
+            <button onclick="clearLog()">로그 지우기</button>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let gameRoomId = null;
+        let userId = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logDiv.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function connect() {
+            gameRoomId = document.getElementById('gameRoomId').value;
+            userId = document.getElementById('userId').value;
+
+            if (!gameRoomId || !userId) {
+                log('게임방 ID와 유저 ID를 입력하세요', 'error');
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:10000/ws');
+            stompClient = Stomp.over(socket);
+            
+            // STOMP 디버그 모드 활성화
+            stompClient.debug = function(str) {
+                log('STOMP: ' + str, 'info');
+            };
+            
+            log('WebSocket 연결 시도 중...', 'info');
+            stompClient.connect({}, function(frame) {
+                log('WebSocket 연결 성공', 'success');
+                document.getElementById('connectionStatus').innerHTML = '<span class="success">연결됨</span>';
+                
+                // 구독
+                stompClient.subscribe('/sub/game/snake/room/' + gameRoomId, function(message) {
+                    const data = JSON.parse(message.body);
+                    log('응답 수신: ' + JSON.stringify(data, null, 2), 'success');
+                });
+                
+                log('게임방 구독: /sub/game/snake/room/' + gameRoomId, 'info');
+            }, function(error) {
+                log('연결 실패: ' + JSON.stringify(error, null, 2), 'error');
+                log('에러 상세: ' + error.toString(), 'error');
+                if (error.headers) {
+                    log('에러 헤더: ' + JSON.stringify(error.headers, null, 2), 'error');
+                }
+                document.getElementById('connectionStatus').innerHTML = '<span class="error">연결 실패</span>';
+            });
+            
+            // 연결 끊김 감지
+            socket.onclose = function() {
+                log('WebSocket 연결이 끊겼습니다', 'error');
+                document.getElementById('connectionStatus').innerHTML = '<span class="error">연결 끊김</span>';
+            };
+            
+            socket.onerror = function(error) {
+                log('WebSocket 에러: ' + JSON.stringify(error), 'error');
+            };
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                log('연결 해제', 'info');
+                document.getElementById('connectionStatus').innerHTML = '<span class="error">연결 해제됨</span>';
+            }
+        }
+
+        function sendMessage(destination, data) {
+            if (stompClient === null || !stompClient.connected) {
+                log('먼저 연결하세요', 'error');
+                return;
+            }
+            
+            log('요청 전송: ' + destination + ' - ' + JSON.stringify(data), 'info');
+            stompClient.send('/pub' + destination, {}, JSON.stringify(data));
+        }
+
+        function updateReady() {
+            sendMessage('/game/snake/ready', {
+                gameRoomId: parseInt(gameRoomId),
+                userId: parseInt(userId),
+                gameJoinIsReady: 1
+            });
+        }
+
+        function startGame() {
+            sendMessage('/game/snake/start', {
+                gameRoomId: parseInt(gameRoomId),
+                userId: parseInt(userId)
+            });
+        }
+
+        function rollDice() {
+            sendMessage('/game/snake/roll-dice', {
+                gameRoomId: parseInt(gameRoomId),
+                userId: parseInt(userId)
+            });
+        }
+
+        function getGameState() {
+            sendMessage('/game/snake/state', {
+                gameRoomId: parseInt(gameRoomId)
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -20,13 +20,19 @@ public interface GameJoinService {
     //    현재 방에 있는 유저 리스트를 가져온다.-->
     public List<GameJoinDTO> getArrangeUserByTurn(Long gameRoomId);
     //<!--    유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보-->
-    public Integer getUserPosition(Long userId);
-    public boolean getUserTurn(Long userId);
+    public Integer getUserPosition(GameJoinVO gameJoinVO);
+    public boolean getUserTurn(GameJoinVO gameJoinVO);
     //            <!--    선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경-->
     public void updateUserPosition(GameJoinVO gameJoinVO);
     public void updateUserTurn(Long userId);
     //<!--    게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다.
     public void updateAllUserTurn(Long gameRoomId);
+    
+    // 게임 종료 시 모든 플레이어 포지션 초기화
+    public void resetAllPosition(Long gameRoomId);
+    
+    // 게임 종료 시 모든 플레이어 레디 상태 초기화
+    public void resetAllReady(Long gameRoomId);
     
     // 준비 상태 업데이트
     public void updateReady(GameJoinVO gameJoinVO);

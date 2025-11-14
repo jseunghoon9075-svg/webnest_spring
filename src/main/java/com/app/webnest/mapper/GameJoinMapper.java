@@ -29,8 +29,8 @@ public interface GameJoinMapper {
     public List<GameJoinDTO> selectUserListByGameRoomId(Long gameRoomId);
     
     // 유저의 정보 가져온다. 1. 위치 정보, 2. 턴 정보
-    public Integer selectUserTurn(Long userId);
-    public Integer selectUserPosition(Long userId);
+    public Integer selectUserTurn(GameJoinVO gameJoinVO);
+    public Integer selectUserPosition(GameJoinVO gameJoinVO);
     
     // 선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경
     public void updateUserPosition(GameJoinVO gameJoinVO);
@@ -38,6 +38,12 @@ public interface GameJoinMapper {
     
     // 게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다.
     public void updateAllTurn(Long gameRoomId);
+    
+    // 게임 종료 시 모든 플레이어 포지션 초기화
+    public void resetAllPosition(Long gameRoomId);
+    
+    // 게임 종료 시 모든 플레이어 레디 상태 초기화
+    public void resetAllReady(Long gameRoomId);
     
     // 준비 상태 업데이트
     public void updateReady(GameJoinVO gameJoinVO);

@@ -27,6 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getRequestURI();
+    // WebSocket 경로는 필터 건너뛰기 (WebSocket 테스트용 - 주석 처리 가능)
+    // if (path.startsWith("/ws")) {
+    //   return true;
+    // }
+    // private 경로가 아닌 경우 필터 건너뛰기
     return !path.startsWith("/private/");
   }
 
