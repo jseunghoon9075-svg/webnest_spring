@@ -63,24 +63,20 @@ public class SnakeGameApi {
         log.info("Game start requested. gameRoomId: {}, userId: {}", 
                 gameJoinVO.getGameRoomId(), gameJoinVO.getUserId());
         
-        // 방장을 제외한 모든 유저가 준비되었는지 확인
+        // 게임 시작 시 모든 플레이어를 자동으로 준비완료 상태로 변경
         List<GameJoinDTO> players = gameJoinService.getArrangeUserByTurn(gameJoinVO.getGameRoomId());
-        boolean allReady = players.stream()
-                .filter(p -> !p.getUserId().equals(gameJoinVO.getUserId())) // 방장 제외
-                .allMatch(p -> p.getGameJoinIsReady() != null && p.getGameJoinIsReady() == 1);
         
-        if (!allReady) {
-            log.warn("Not all players are ready. gameRoomId: {}", gameJoinVO.getGameRoomId());
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("type", "GAME_START_FAILED");
-            errorResponse.put("message", "모든 플레이어가 준비되지 않았습니다.");
-            errorResponse.put("gameState", players);
-            
-            simpMessagingTemplate.convertAndSend(
-                    "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
-                    errorResponse
-            );
-            return;
+        log.info("Auto-setting all players to ready. Total players: {}, gameRoomId: {}", 
+                players.size(), gameJoinVO.getGameRoomId());
+        
+        // 모든 플레이어를 준비완료 상태로 변경
+        for (GameJoinDTO player : players) {
+            GameJoinVO readyVO = new GameJoinVO();
+            readyVO.setUserId(player.getUserId());
+            readyVO.setGameRoomId(gameJoinVO.getGameRoomId());
+            readyVO.setGameJoinIsReady(1);
+            gameJoinService.updateReady(readyVO);
+            log.info("Player auto-ready set. userId: {}", player.getUserId());
         }
         
         // 게임 시작 전 초기화 (안전장치)
@@ -89,12 +85,33 @@ public class SnakeGameApi {
         
         // 모든 턴을 0으로 설정
         gameJoinService.updateAllUserTurn(gameJoinVO.getGameRoomId());
+        log.info("All turns reset to 0. gameRoomId: {}", gameJoinVO.getGameRoomId());
         
-        // 방장의 턴을 1로 설정 (첫 번째 플레이어)
-        gameJoinService.updateUserTurn(gameJoinVO.getUserId());
+        // 게임 상태를 다시 조회하여 최신 상태 가져오기
+        List<GameJoinDTO> currentPlayers = gameJoinService.getArrangeUserByTurn(gameJoinVO.getGameRoomId());
+        log.info("Current players count after reset: {}", currentPlayers.size());
+        currentPlayers.forEach(p -> {
+            log.info("Player before turn set - userId: {}, myTurn: {}", p.getUserId(), p.isGameJoinMyturn());
+        });
         
-        // 게임 상태 조회
+        // 첫 번째 플레이어의 턴을 1로 설정
+        if (!currentPlayers.isEmpty()) {
+            GameJoinVO firstPlayerVO = new GameJoinVO();
+            firstPlayerVO.setUserId(currentPlayers.get(0).getUserId());
+            firstPlayerVO.setGameRoomId(gameJoinVO.getGameRoomId());
+            gameJoinService.updateUserTurn(firstPlayerVO);
+            log.info("First player turn set. userId: {}, gameRoomId: {}", 
+                    currentPlayers.get(0).getUserId(), gameJoinVO.getGameRoomId());
+        } else {
+            log.warn("No players found to set turn. gameRoomId: {}", gameJoinVO.getGameRoomId());
+        }
+        
+        // 게임 상태 조회 (턴 설정 후)
         List<GameJoinDTO> gameState = gameJoinService.getArrangeUserByTurn(gameJoinVO.getGameRoomId());
+        log.info("Game state after turn set. Players count: {}", gameState.size());
+        gameState.forEach(p -> {
+            log.info("Player in gameState - userId: {}, myTurn: {}", p.getUserId(), p.isGameJoinMyturn());
+        });
         
         Map<String, Object> response = new HashMap<>();
         response.put("type", "GAME_STARTED");
@@ -316,13 +333,19 @@ public class SnakeGameApi {
                      break;
                  }
              }
-             // 다음 유저의 턴 활성화
-             if (currentIndex >= 0 && currentIndex < players.size() - 1) {
-                 gameJoinService.updateUserTurn(players.get(currentIndex + 1).getUserId());
-             } else if (currentIndex == players.size() - 1) {
-                 // 마지막 유저면 첫 번째 유저로
-                 gameJoinService.updateUserTurn(players.get(0).getUserId());
-             }
+            // 다음 유저의 턴 활성화
+            if (currentIndex >= 0 && currentIndex < players.size() - 1) {
+                GameJoinVO nextPlayerVO = new GameJoinVO();
+                nextPlayerVO.setUserId(players.get(currentIndex + 1).getUserId());
+                nextPlayerVO.setGameRoomId(gameJoinVO.getGameRoomId());
+                gameJoinService.updateUserTurn(nextPlayerVO);
+            } else if (currentIndex == players.size() - 1) {
+                // 마지막 유저면 첫 번째 유저로
+                GameJoinVO firstPlayerVO = new GameJoinVO();
+                firstPlayerVO.setUserId(players.get(0).getUserId());
+                firstPlayerVO.setGameRoomId(gameJoinVO.getGameRoomId());
+                gameJoinService.updateUserTurn(firstPlayerVO);
+            }
          }
         
         // ============================================

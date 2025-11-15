@@ -1,6 +1,7 @@
 package com.app.webnest.service;
 
 import com.app.webnest.domain.dto.GameRoomDTO;
+import com.app.webnest.domain.vo.GameRoomVO;
 import com.app.webnest.exception.RoomException;
 import com.app.webnest.mapper.GameRoomMapper;
 import com.app.webnest.repository.FollowDAO;
@@ -57,5 +58,24 @@ public class GameRoomServiceImpl implements GameRoomService {
         GameRoomDTO room = gameRoomDAO.getRoom(id).orElseThrow(() -> new RuntimeException("채팅방 조회 오류"));
         room.setPlayers(gameJoinDAO.getPlayers(id));
         return room;
+    }
+    
+    // 게임방 생성
+    @Override
+    public Long create(GameRoomVO gameRoomVO) {
+        gameRoomDAO.save(gameRoomVO);
+        return gameRoomVO.getId(); // selectKey로 설정된 ID 반환
+    }
+    
+    // 게임방 삭제
+    @Override
+    public void delete(Long id) {
+        gameRoomDAO.delete(id);
+    }
+    
+    // 게임방 수정
+    @Override
+    public void update(GameRoomVO gameRoomVO) {
+        gameRoomDAO.update(gameRoomVO);
     }
 }

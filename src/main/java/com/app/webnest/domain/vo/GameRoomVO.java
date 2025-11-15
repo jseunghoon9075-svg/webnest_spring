@@ -15,6 +15,7 @@ public class GameRoomVO {
     private Integer gameRoomIsStart;
     private Integer gameRoomIsOpen;
     private String gameRoomPassKey;
-    private LocalDateTime gameRoomCreatedAt;
+    private LocalDateTime gameRoomCreateAt;
     private String gameRoomLanguage;
+    private Integer gameRoomDifficult;
 }

@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.app.webnest.mapper.GameRoomMapper">
     <!--  게임방 관련 Mapper  -->
-
     <!-- 게임방 전체 조회 -->
     <select id="selectAll" resultType="GameRoomDTO">
         SELECT
@@ -12,7 +11,7 @@
                 FROM TBL_GAME_JOIN
                 WHERE GAME_ROOM_ID = TGR.ID
             ) AS GAME_ROOM_CURRENT_PLAYER,
-            GAME_ROOM_MAX_PLAYER, GAME_ROOM_IS_START, GAME_ROOM_PASS_KEY, GAME_ROOM_CREATE_AT, GAME_ROOM_LANGUAGE
+            GAME_ROOM_MAX_PLAYER, GAME_ROOM_IS_START, GAME_ROOM_PASS_KEY, GAME_ROOM_CREATE_AT, GAME_ROOM_LANGUAGE, GAME_ROOM_DIFFICULT
         FROM TBL_GAME_ROOM TGR
     </select>
 
@@ -25,12 +24,27 @@
         FROM TBL_GAME_JOIN
         WHERE GAME_ROOM_ID = TGR.ID
         ) AS GAME_ROOM_CURRENT_PLAYER,
-        GAME_ROOM_MAX_PLAYER, GAME_ROOM_IS_START, GAME_ROOM_PASS_KEY, GAME_ROOM_CREATE_AT, GAME_ROOM_LANGUAGE
+        GAME_ROOM_MAX_PLAYER, GAME_ROOM_IS_START, GAME_ROOM_PASS_KEY, GAME_ROOM_CREATE_AT, GAME_ROOM_LANGUAGE, GAME_ROOM_DIFFICULT
         FROM TBL_GAME_ROOM TGR
         WHERE TGR.ID = #{id}
     </select>
-
+    <insert id="insert" parameterType="GameRoomVO">
+        <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+            SELECT SEQ_GAME_ROOM.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TBL_GAME_ROOM(ID, GAME_ROOM_TITLE, GAME_ROOM_IS_TEAM, GAME_ROOM_TYPE, GAME_ROOM_IS_OPEN, GAME_ROOM_MAX_PLAYER, GAME_ROOM_IS_START, GAME_ROOM_PASS_KEY, GAME_ROOM_CREATE_AT, GAME_ROOM_LANGUAGE, GAME_ROOM_DIFFICULT)
+        VALUES (#{id}, #{gameRoomTitle}, #{gameRoomIsTeam}, #{gameRoomType}, #{gameRoomIsOpen}, #{gameRoomMaxPlayer}, #{gameRoomIsStart}, #{gameRoomPassKey}, #{gameRoomCreateAt}, #{gameRoomLanguage}, #{gameRoomDifficult})
+    </insert>
     <!-- 채팅방 추가 -->
     <!-- 채팅방 삭제 -->
+    <delete id="delete" parameterType="Long">
+        DELETE FROM TBL_GAME_ROOM
+        WHERE ID = #{id}
+    </delete>
+    <update id="update" parameterType="GameRoomVO">
+        UPDATE TBL_GAME_ROOM
+        SET GAME_ROOM_TITLE = #{gameRoomTitle}, GAME_ROOM_IS_TEAM = #{gameRoomIsTeam}, GAME_ROOM_TYPE = #{gameRoomType}, GAME_ROOM_IS_OPEN = #{gameRoomIsOpen}, GAME_ROOM_MAX_PLAYER = #{gameRoomMaxPlayer}, GAME_ROOM_IS_START = #{gameRoomIsStart}, GAME_ROOM_PASS_KEY = #{gameRoomPassKey}, GAME_ROOM_CREATE_AT = #{gameRoomCreateAt}, GAME_ROOM_LANGUAGE = #{gameRoomLanguage}, GAME_ROOM_DIFFICULT = #{gameRoomDifficult}
+        WHERE ID = #{id}
+    </update>
 
 </mapper>

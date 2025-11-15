@@ -7,20 +7,23 @@ import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import com.app.webnest.domain.vo.GameRoomVO;
+import com.app.webnest.domain.vo.GameJoinVO;
+import com.app.webnest.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/game-rooms/*")
+@RequestMapping("/private/game-rooms")
 public class GameRoomApi {
 
     private final GameRoomService gameRoomService;
@@ -28,9 +31,11 @@ public class GameRoomApi {
     private final WinningStreakService winningStreakService;
     private final FollowService followService;
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping("")
     public ResponseEntity<ApiResponseDTO<Map<String, Object>>> getRooms(@RequestParam Long userId) {
+        log.info("게임방 목록 조회 요청 - userId: {}", userId);
         List<GameRoomDTO> rooms = gameRoomService.getRooms(userId);
         Integer winCount = winningStreakService.getWinCountByUserId(userId);
         List<FollowDTO> following = followService.getFollowWithStatus(userId);
@@ -61,6 +66,85 @@ public class GameRoomApi {
         List<GameJoinDTO> gameState = gameJoinService.getArrangeUserByTurn(gameRoomId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponseDTO.of("게임 상태 조회 성공", gameState));
+    }
+
+    /**
+     * 게임방 생성
+     * POST /private/game-rooms
+     * RequestBody: { gameRoomVO: {...} }
+     * userId는 Authentication에서 자동으로 가져옴
+     */
+    @PostMapping("")
+    public ResponseEntity<ApiResponseDTO<GameRoomDTO>> createRoom(
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
+        
+        // Authentication에서 userId 가져오기
+        String email = authService.getUserEmailFromAuthentication(authentication);
+        if (email == null || email.isBlank()) {
+            throw new com.app.webnest.exception.UserException("인증 정보에 이메일이 없습니다.");
+        }
+        Long userId = userService.getUserIdByUserEmail(email);
+        
+        // GameRoomVO 파싱
+        @SuppressWarnings("unchecked")
+        Map<String, Object> roomData = (Map<String, Object>) request.get("gameRoomVO");
+        
+        GameRoomVO gameRoomVO = new GameRoomVO();
+        if (roomData.get("gameRoomTitle") != null) gameRoomVO.setGameRoomTitle(roomData.get("gameRoomTitle").toString());
+        if (roomData.get("gameRoomIsTeam") != null) gameRoomVO.setGameRoomIsTeam(Integer.valueOf(roomData.get("gameRoomIsTeam").toString()));
+        if (roomData.get("gameRoomType") != null) gameRoomVO.setGameRoomType(roomData.get("gameRoomType").toString());
+        if (roomData.get("gameRoomMaxPlayer") != null) gameRoomVO.setGameRoomMaxPlayer(Integer.valueOf(roomData.get("gameRoomMaxPlayer").toString()));
+        if (roomData.get("gameRoomIsStart") != null) gameRoomVO.setGameRoomIsStart(Integer.valueOf(roomData.get("gameRoomIsStart").toString()));
+        if (roomData.get("gameRoomIsOpen") != null) gameRoomVO.setGameRoomIsOpen(Integer.valueOf(roomData.get("gameRoomIsOpen").toString()));
+        if (roomData.get("gameRoomPassKey") != null) gameRoomVO.setGameRoomPassKey(roomData.get("gameRoomPassKey").toString());
+        if (roomData.get("gameRoomLanguage") != null) gameRoomVO.setGameRoomLanguage(roomData.get("gameRoomLanguage").toString());
+        if (roomData.get("gameRoomDifficult") != null) gameRoomVO.setGameRoomDifficult(Integer.valueOf(roomData.get("gameRoomDifficult").toString()));
+        
+        // 생성 시간 자동 설정
+        gameRoomVO.setGameRoomCreateAt(LocalDateTime.now());
+        
+        // 게임방 생성
+        Long createdRoomId = gameRoomService.create(gameRoomVO);
+        
+        // 생성한 사람을 호스트로 게임방에 추가
+        GameJoinVO hostJoinVO = new GameJoinVO();
+        hostJoinVO.setUserId(userId);
+        hostJoinVO.setGameRoomId(createdRoomId);
+        hostJoinVO.setGameJoinIsHost(1); // 호스트로 설정
+        hostJoinVO.setGameJoinTeamcolor(null); // 팀 컬러는 나중에 설정 가능
+        gameJoinService.join(hostJoinVO);
+        
+        // 생성된 게임방 조회
+        GameRoomDTO createdRoom = gameRoomService.getRoom(createdRoomId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponseDTO.of("게임방 생성 성공", createdRoom));
+    }
+
+    /**
+     * 게임방 수정
+     * PUT /private/game-rooms/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponseDTO<GameRoomDTO>> updateRoom(
+            @PathVariable Long id,
+            @RequestBody GameRoomVO gameRoomVO) {
+        gameRoomVO.setId(id);
+        gameRoomService.update(gameRoomVO);
+        GameRoomDTO updatedRoom = gameRoomService.getRoom(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponseDTO.of("게임방 수정 성공", updatedRoom));
+    }
+
+    /**
+     * 게임방 삭제
+     * DELETE /private/game-rooms/{id}
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponseDTO<Void>> deleteRoom(@PathVariable Long id) {
+        gameRoomService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponseDTO.of("게임방 삭제 성공", null));
     }
 
 }

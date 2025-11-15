@@ -56,8 +56,8 @@ public class GameJoinDAO {
     }
     
     // 선택한 유저의 정보를 수정한다. 위치 이동, 턴 변경
-    public void modifyUserTurn(Long userId){
-        gameJoinMapper.updateUserTurn(userId);
+    public void modifyUserTurn(GameJoinVO gameJoinVO){
+        gameJoinMapper.updateUserTurn(gameJoinVO);
     }
     public void modifyUserPosition(GameJoinVO gameJoinVO){
         gameJoinMapper.updateUserPosition(gameJoinVO);

@@ -16,7 +16,7 @@
     <select id="selectGameUserByUserIdAndGameRoom" parameterType="GameJoinVO" resultType="GameJoinVO">
         SELECT ID, GAME_JOIN_IS_HOST, USER_ID ,GAME_ROOM_ID
         FROM TBL_GAME_JOIN
-        WHERE USER_ID = #{userId} AND #{gameRoomId}
+        WHERE USER_ID = #{userId} AND GAME_ROOM_ID = #{gameRoomId}
     </select>
 
     <insert id="insert" parameterType="GameJoinVO">
@@ -120,9 +120,9 @@
         WHERE USER_ID = #{userId}
         AND GAME_ROOM_ID = #{gameRoomId}
     </update>
-    <update id="updateUserTurn" parameterType="Long">
+    <update id="updateUserTurn" parameterType="GameJoinVO">
         UPDATE TBL_GAME_JOIN SET GAME_JOIN_MYTURN = 1
-        WHERE USER_ID = #{userId}
+        WHERE USER_ID = #{userId} AND GAME_ROOM_ID = #{gameRoomId}
     </update>
 <!--    게임이 끝났을 때는 게임방에 있는 모두를 변경해줘야 한다. -->
     <update id="updateAllTurn" parameterType="Long">

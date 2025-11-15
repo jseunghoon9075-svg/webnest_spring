@@ -65,8 +65,8 @@ public class GameJoinServiceImpl implements GameJoinService {
         gameJoinDAO.modifyUserPosition(gameJoinVO);
     }
     @Override
-    public void updateUserTurn(Long userId) {
-        gameJoinDAO.modifyUserTurn(userId);
+    public void updateUserTurn(GameJoinVO gameJoinVO) {
+        gameJoinDAO.modifyUserTurn(gameJoinVO);
     }
         @Override
         public void updateAllUserTurn(Long gameRoomId){

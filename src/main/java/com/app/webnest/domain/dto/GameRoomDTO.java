@@ -19,6 +19,7 @@ public class GameRoomDTO {
     private String gameRoomPassKey;
     private LocalDateTime gameRoomCreateAt;
     private String gameRoomLanguage;
+    private Integer gameRoomDifficult;
 
     // 게임방 목록을 조회할 때 참여한 유저를 모두 조회한다.
     private List<GameJoinDTO> players;
