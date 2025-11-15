@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public void modify(UserVO userVO) {
     if(userVO.getUserPassword() != null && !userVO.getUserPassword().isBlank())
-      userVO.setUserPassword(passwordEncoder.encode(userVO.getUserPassword()));
+//      userVO.setUserPassword(passwordEncoder.encode(userVO.getUserPassword()));
     userDAO.update(userVO);
   }
 
