@@ -54,6 +54,8 @@
         <typeAlias type="com.app.webnest.domain.dto.QuizDTO" alias="QuizDTO" />
         <typeAlias type="com.app.webnest.domain.dto.QuizPersonalDTO" alias="QuizPersonalDTO" />
         <typeAlias type="com.app.webnest.domain.dto.QuizResponseDTO" alias="QuizResponseDTO" />
+        <typeAlias type="com.app.webnest.domain.dto.QuizPersonalResponseDTO" alias="QuizPersonalResponseDTO" />
+        <typeAlias type="com.app.webnest.domain.dto.QuizMyPageDTO" alias="QuizMyPageDTO" />
         <typeAlias type="com.app.webnest.domain.dto.QuizSubmitDTO" alias="QuizSubmitDTO" />
         <typeAlias type="com.app.webnest.domain.dto.SubcommentDTO" alias="SubcommentDTO" />
         <typeAlias type="com.app.webnest.domain.dto.SubcommentLikeDTO" alias="SubcommentLikeDTO" />
