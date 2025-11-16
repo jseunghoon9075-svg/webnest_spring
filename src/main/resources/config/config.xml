@@ -32,6 +32,7 @@
         <typeAlias type="com.app.webnest.domain.vo.UserVO" alias="UserVO" />
         <typeAlias type="com.app.webnest.domain.vo.WinningStreakVO" alias="WinningStreakVO" />
         <typeAlias type="com.app.webnest.domain.vo.TypingContentsVO" alias="TypingContentsVO" />
+        <typeAlias type="com.app.webnest.domain.vo.TypingRecordVO" alias="TypingRecordVO" />
 
 
         <!-- DTO -->
@@ -65,6 +66,7 @@
         <typeAlias type="com.app.webnest.domain.dto.PostSearchDTO" alias="PostSearchDTO" />
         <typeAlias type="com.app.webnest.domain.dto.QuizSearchDTO" alias="QuizSearchDTO" />
         <typeAlias type="com.app.webnest.domain.dto.TypingContentsDTO" alias="TypingContentsDTO" />
+        <typeAlias type="com.app.webnest.domain.dto.TypingRecordDTO" alias="TypingRecordDTO" />
     </typeAliases>
 
 </configuration>
