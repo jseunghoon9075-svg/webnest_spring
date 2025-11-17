@@ -43,6 +43,12 @@
         AND
         GAME_ROOM_ID = #{gameRoomId}
     </delete>
+    
+    <!-- 게임방의 모든 플레이어 삭제 -->
+    <delete id="deleteAllByGameRoomId" parameterType="Long">
+        DELETE FROM TBL_GAME_JOIN
+        WHERE GAME_ROOM_ID = #{gameRoomId}
+    </delete>
     <update id="updateTeamColor" parameterType="GameJoinVO">
         UPDATE TBL_GAME_JOIN
         SET GAME_JOIN_TEAMCOLOR = #{gameJoinTeamcolor}

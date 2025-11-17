@@ -120,5 +120,11 @@
             GAME_ROOM_ID = #{gameRoomId}
     </update>
 
+    <!-- 게임방의 모든 채팅 메시지 삭제 -->
+    <delete id="deleteByGameRoomId" parameterType="Long">
+        DELETE FROM TBL_CHAT_MESSAGE
+        WHERE GAME_ROOM_ID = #{gameRoomId}
+    </delete>
+
 
 </mapper>

@@ -8,8 +8,6 @@ import java.util.Date;
 @Getter @Setter @ToString @EqualsAndHashCode(of = "id")
 public class FollowNotificationVO {
     private Long id;
-    private Long followerId; // erd고치기
-    private Long userId;
     private Integer followNotificationIsRead;
     private Date notificationCreateAt;
     private Long actorUserId;

@@ -33,4 +33,9 @@ public class ChatMessageDAO {
     public void updateReadStatus(ChatMessageVO chatMessageVO){
         chatMessageMapper.updateReadStatus(chatMessageVO);
     }
+    
+    // 게임방의 모든 채팅 메시지 삭제
+    public void deleteByGameRoomId(Long gameRoomId){
+        chatMessageMapper.deleteByGameRoomId(gameRoomId);
+    }
 }

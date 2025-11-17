@@ -51,8 +51,31 @@ public class GameRoomApi {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<GameRoomDTO>> getRoom(@PathVariable Long id) {
-        GameRoomDTO room = gameRoomService.getRoom(id);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("채팅방 목록조회", room));
+        log.info("게임방 단일 조회 요청 - id: {}", id);
+        try {
+            GameRoomDTO room = gameRoomService.getRoom(id);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게임방 조회 성공", room));
+        } catch (Exception e) {
+            log.error("게임방 조회 실패 - id: {}, error: {}", id, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 프론트엔드 호환성을 위한 게임방 조회 엔드포인트
+     * GET /game-room/{id}
+     * 절대 경로로 지정하여 클래스 레벨 매핑 무시
+     */
+    @RequestMapping(value = "/game-room/{id}", method = RequestMethod.GET)
+    public ResponseEntity<ApiResponseDTO<GameRoomDTO>> getRoomByLegacyPath(@PathVariable Long id) {
+        log.info("게임방 단일 조회 요청 (레거시 경로) - id: {}", id);
+        try {
+            GameRoomDTO room = gameRoomService.getRoom(id);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("게임방 조회 성공", room));
+        } catch (Exception e) {
+            log.error("게임방 조회 실패 - id: {}, error: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -104,19 +127,8 @@ public class GameRoomApi {
         // 생성 시간 자동 설정
         gameRoomVO.setGameRoomCreateAt(LocalDateTime.now());
         
-        // 게임방 생성
-        Long createdRoomId = gameRoomService.create(gameRoomVO);
-        
-        // 생성한 사람을 호스트로 게임방에 추가
-        GameJoinVO hostJoinVO = new GameJoinVO();
-        hostJoinVO.setUserId(userId);
-        hostJoinVO.setGameRoomId(createdRoomId);
-        hostJoinVO.setGameJoinIsHost(1); // 호스트로 설정
-        hostJoinVO.setGameJoinTeamcolor(null); // 팀 컬러는 나중에 설정 가능
-        gameJoinService.join(hostJoinVO);
-        
-        // 생성된 게임방 조회
-        GameRoomDTO createdRoom = gameRoomService.getRoom(createdRoomId);
+        // 게임방 생성과 호스트 추가를 한 트랜잭션에서 처리 (생성된 게임방 DTO 반환)
+        GameRoomDTO createdRoom = gameRoomService.createRoomWithHost(gameRoomVO, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDTO.of("게임방 생성 성공", createdRoom));
     }

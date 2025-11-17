@@ -31,6 +31,11 @@ public class GameJoinDAO {
     public void delete(GameJoinVO gameJoinVO){
         gameJoinMapper.delete(gameJoinVO);
     }
+    
+    // 게임방의 모든 플레이어 삭제
+    public void deleteAllByGameRoomId(Long gameRoomId){
+        gameJoinMapper.deleteAllByGameRoomId(gameRoomId);
+    }
 
     // 플레이어 팀 컬러 업데이트
     public void updateTeamColor(GameJoinVO gameJoinVO){

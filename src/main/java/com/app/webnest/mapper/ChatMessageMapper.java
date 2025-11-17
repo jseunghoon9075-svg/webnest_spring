@@ -21,5 +21,8 @@ public interface ChatMessageMapper {
 
     // 읽음 상태 변경
     public void updateReadStatus(ChatMessageVO chatMessageVO);
+    
+    // 게임방의 모든 채팅 메시지 삭제
+    public void deleteByGameRoomId(Long gameRoomId);
 
 }

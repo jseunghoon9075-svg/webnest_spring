@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class SnakeGameApi {
      * /pub/game/snake/ready
      * 요청: { gameRoomId: Long, userId: Long, gameJoinIsReady: 1 }
      */
-    @MessageMapping("/game/snake/ready")
+    @MessageMapping("/game/snake-puzzle/ready")
     public void updateReady(GameJoinVO gameJoinVO) {
         log.info("Ready status update requested. gameRoomId: {}, userId: {}, isReady: {}", 
                 gameJoinVO.getGameRoomId(), gameJoinVO.getUserId(), gameJoinVO.getGameJoinIsReady());
@@ -52,7 +51,7 @@ public class SnakeGameApi {
         
         // 브로드캐스트
         simpMessagingTemplate.convertAndSend(
-                "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                 response
         );
     }
@@ -62,7 +61,7 @@ public class SnakeGameApi {
      * /pub/game/snake/start
      * 요청: { gameRoomId: Long, userId: Long } (방장의 userId)
      */
-    @MessageMapping("/game/snake/start")
+    @MessageMapping("/game/snake-puzzle/start")
     public void startGame(GameJoinVO gameJoinVO) {
 
         // 게임 시작 시 모든 플레이어를 자동으로 준비완료 상태로 변경
@@ -112,7 +111,7 @@ public class SnakeGameApi {
         
         // 브로드캐스트
         simpMessagingTemplate.convertAndSend(
-                "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                 response
         );
     }
@@ -120,12 +119,12 @@ public class SnakeGameApi {
     /**
      * 주사위 굴리기 (모든 게임 로직 처리)
      * /pub/game/snake/roll-dice
-     * 요청: { gameRoomId: Long, userId: Long }
+     * 요청: { gameRoomId: Long, userId: Long, dice1: Integer, dice2: Integer }
      * 
      * 이 메서드에서 처리할 로직:
      * 1. 턴 검증 (getUserTurn)
      * 2. 현재 포지션 조회 (getUserPosition)
-     * 3. 주사위 굴리기 (랜덤 2개)
+     * 3. 주사위 값 검증 (프론트엔드에서 받은 값)
      * 4. 새 포지션 계산 (현재 포지션 + 주사위 합)
      * 5. 함정/지름길 처리 (케이스문으로 처리)
      * 6. 포지션 업데이트 (updateUserPosition)
@@ -133,7 +132,7 @@ public class SnakeGameApi {
      * 8. 더블 체크 (같은 숫자면 턴 유지, 다르면 턴 넘기기)
      * 9. 턴 넘기기 (getArrangeUserByTurn으로 다음 유저 찾아서 updateUserTurn)
      */
-    @MessageMapping("/game/snake/roll-dice")
+    @MessageMapping("/game/snake-puzzle/roll-dice")
     public void rollDice(GameJoinVO gameJoinVO) {
 
         try {
@@ -147,7 +146,7 @@ public class SnakeGameApi {
              errorResponse.put("type", "NOT_YOUR_TURN");
              errorResponse.put("message", "현재 당신의 턴이 아닙니다.");
              simpMessagingTemplate.convertAndSend(
-                     "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                     "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                      errorResponse
              );
              return;
@@ -156,14 +155,14 @@ public class SnakeGameApi {
          // 게임 종료 체크 (게임이 이미 끝났으면 주사위 굴리기 불가)
          List<GameJoinDTO> currentGameState = gameJoinService.getArrangeUserByTurn(gameJoinVO.getGameRoomId());
          boolean gameAlreadyEnded = currentGameState.stream()
-                 .anyMatch(p -> p.getGameJoinPosition() != null && p.getGameJoinPosition() >= 100);
+                 .anyMatch(player -> player.getGameJoinPosition() != null && player.getGameJoinPosition() >= 100);
          if (gameAlreadyEnded) {
              log.warn("Game already ended. userId: {}", gameJoinVO.getUserId());
              Map<String, Object> errorResponse = new HashMap<>();
              errorResponse.put("type", "GAME_ALREADY_ENDED");
              errorResponse.put("message", "게임이 이미 종료되었습니다.");
              simpMessagingTemplate.convertAndSend(
-                     "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                     "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                      errorResponse
              );
              return;
@@ -199,10 +198,37 @@ public class SnakeGameApi {
             }
         }
         
-        // 4. 주사위 굴리기 (랜덤 1~6 두 개)
-         Random random = new Random();
-         int dice1 = random.nextInt(6) + 1;
-         int dice2 = random.nextInt(6) + 1;
+        // 4. 주사위 값 검증 (프론트엔드에서 받은 값 사용)
+         if (gameJoinVO.getDice1() == null || gameJoinVO.getDice2() == null) {
+             log.warn("주사위 값이 없습니다. userId: {}, dice1: {}, dice2: {}", 
+                     gameJoinVO.getUserId(), gameJoinVO.getDice1(), gameJoinVO.getDice2());
+             Map<String, Object> errorResponse = new HashMap<>();
+             errorResponse.put("type", "INVALID_DICE");
+             errorResponse.put("message", "주사위 값이 필요합니다.");
+             simpMessagingTemplate.convertAndSend(
+                     "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
+                     errorResponse
+             );
+             return;
+         }
+         
+         // 주사위 값 유효성 검증 (1~6 사이)
+         int dice1 = gameJoinVO.getDice1();
+         int dice2 = gameJoinVO.getDice2();
+         if (dice1 < 1 || dice1 > 6 || dice2 < 1 || dice2 > 6) {
+             log.warn("유효하지 않은 주사위 값. userId: {}, dice1: {}, dice2: {}", 
+                     gameJoinVO.getUserId(), dice1, dice2);
+             Map<String, Object> errorResponse = new HashMap<>();
+             errorResponse.put("type", "INVALID_DICE");
+             errorResponse.put("message", "주사위 값은 1~6 사이여야 합니다.");
+             simpMessagingTemplate.convertAndSend(
+                     "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
+                     errorResponse
+             );
+             return;
+         }
+         
+         log.info("주사위 굴리기 - userId: {}, dice1: {}, dice2: {}", gameJoinVO.getUserId(), dice1, dice2);
         
         // 5. 새 포지션 계산
          int newPosition = currentPosition + dice1 + dice2;
@@ -282,7 +308,7 @@ public class SnakeGameApi {
              List<GameJoinDTO> players = gameJoinService.getArrangeUserByTurn(gameJoinVO.getGameRoomId());
              final String teamColor = userTeamColor; // effectively final 변수 생성
              List<GameJoinDTO> teamPlayers = players.stream()
-                     .filter(p -> teamColor.equals(p.getGameJoinTeamcolor()))
+                     .filter(player -> teamColor.equals(player.getGameJoinTeamcolor()))
                      .collect(Collectors.toList());
              
              for (GameJoinDTO teamPlayer : teamPlayers) {
@@ -382,7 +408,7 @@ public class SnakeGameApi {
         
         // 브로드캐스트
         simpMessagingTemplate.convertAndSend(
-                "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                 response
         );
         log.info("Dice roll completed. dice1: {}, dice2: {}, newPosition: {}, isDouble: {}", 
@@ -394,7 +420,7 @@ public class SnakeGameApi {
             errorResponse.put("type", "DICE_ROLL_ERROR");
             errorResponse.put("message", "주사위 굴리기 중 오류가 발생했습니다: " + e.getMessage());
             simpMessagingTemplate.convertAndSend(
-                    "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                    "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                     errorResponse
             );
         }
@@ -405,7 +431,7 @@ public class SnakeGameApi {
      * /pub/game/snake/state
      * 요청: { gameRoomId: Long }
      */
-    @MessageMapping("/game/snake/state")
+    @MessageMapping("/game/snake-puzzle/state")
     public void getGameState(GameJoinVO gameJoinVO) {
         log.info("Game state requested. gameRoomId: {}", gameJoinVO.getGameRoomId());
         
@@ -418,7 +444,7 @@ public class SnakeGameApi {
         
         // 브로드캐스트
         simpMessagingTemplate.convertAndSend(
-                "/sub/game/snake/room/" + gameJoinVO.getGameRoomId(),
+                "/sub/game/snake-puzzle/room/" + gameJoinVO.getGameRoomId(),
                 response
         );
     }
