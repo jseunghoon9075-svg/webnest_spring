@@ -233,7 +233,7 @@
             TBQ.QUIZ_LANGUAGE as quizLanguage,
             TBP.USER_ID as userId
         FROM TBL_QUIZ_PERSONAL TBP
-        JOIN TBL_QUIZ TBQ
+        JOIN TBL_QUIZ   TBQ
             ON TBP.QUIZ_ID = TBQ.ID
         JOIN TBL_USER TBU
             ON TBP.QUIZ_ID = TBQ.ID AND TBU.ID = TBP.USER_ID

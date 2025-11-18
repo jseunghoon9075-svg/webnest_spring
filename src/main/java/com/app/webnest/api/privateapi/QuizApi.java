@@ -154,9 +154,9 @@ public class QuizApi {
         Long findUserId = quizResponseDTO.getUserId();
 
         QuizVO findQuiz = quizService.findQuizById(findQuizId);
-        QuizPersonalVO quizPersonalVO = new QuizPersonalVO();
-        quizPersonalVO.setUserId(findUserId);
-        quizPersonalVO.setQuizId(findQuizId);
+        log.info("findQuiz: {}", findQuiz);
+        quizResponseDTO.setQuizId(findQuizId);
+        quizResponseDTO.setUserId(findUserId);
 
 
         quizDatas.put("findQuiz", findQuiz);
