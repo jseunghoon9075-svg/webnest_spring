@@ -137,7 +137,7 @@
         WHERE QUIZ_ID = #{quizId} AND USER_ID = #{userId}
     </update>
 
-<!--    북마크 여부 반환-->
+
     <update id="updateIsBookmark" parameterType="QuizResponseDTO">
         UPDATE TBL_QUIZ_PERSONAL
         SET QUIZ_PERSONAL_IS_BOOKMARK = CASE WHEN QUIZ_PERSONAL_IS_BOOKMARK = 1 THEN 0 ELSE 1 END

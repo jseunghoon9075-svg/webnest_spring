@@ -99,4 +99,5 @@ public class QuizServiceImpl implements QuizService {
     public void modifySubmitResult(QuizResponseDTO quizResponseDTO) { quizDAO.updateBySubmitResult(quizResponseDTO); }
 
 
+
 }

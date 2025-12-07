@@ -12,6 +12,10 @@ import com.app.webnest.service.UserService;
 import com.app.webnest.util.JwtTokenUtil;
 import com.sun.security.auth.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
@@ -43,11 +47,13 @@ public class    QuizApi {
     private final UserService userService;
 
 
+    @Operation(summary = "페이징 처리 된 문제 리스트 조회", description = "페이징 처리된 문제들을 볼 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @PostMapping("/quiz")
     public ResponseEntity<ApiResponseDTO<Map<String, Object>>> getQuizList(
             @RequestBody Map<String,Object> params,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        // 쿼리에 넘길 Map 구성
+            @Parameter(description = "accessToken를 입력해주세요.", required = true) @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
         if (params == null) params = new HashMap<>();
         String token = null;
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
@@ -89,7 +95,7 @@ public class    QuizApi {
 
         if (findQuizList == null) findQuizList = new ArrayList<>();
 
-        Long quizTotalCount = quizService.quizCount(filters); // quizCount 쿼리는 TBL_QUIZ 기준으로 count 하도록 유지
+        Long quizTotalCount = quizService.quizCount(filters);
         Map<String,Object> data = new HashMap<>();
         data.put("findQuizList", findQuizList);
         data.put("quizTotalCount", quizTotalCount);
@@ -99,10 +105,12 @@ public class    QuizApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("문제리스트 불러오기", data));
     };
 
+    @Operation(summary = "북마크 조회", description = "사용자의 북마크, 해결여부를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "북마크 조회 성공")
     @PostMapping("/quiz/{quizId}/bookmark")
     public ResponseEntity<ApiResponseDTO<HashMap>> getQuizBookmarkAndIsSolve(
             @RequestBody QuizResponseDTO quizResponseDTO,
-            @PathVariable("quizId") Long quizId
+            @Parameter(description = "사용자 아이디", required = true, example = "1")@PathVariable("quizId") Long quizId
     ) {
 
         HashMap<String, Object> data = new HashMap<>();
@@ -115,7 +123,7 @@ public class    QuizApi {
         QuizResponseDTO dto = new QuizResponseDTO();
         dto.setUserId(userId);
         dto.setQuizId(quizId);
-//        북마크 눌렀을때 퍼스널테이블에 이미 해당유저가 있다면 북마크만 업데이트
+
         Long findPersonId = quizService.findQuizPersonalById(dto);
         if(findPersonId != null){
             quizService.isBookmarked(dto);
@@ -143,8 +151,13 @@ public class    QuizApi {
     }
 
 
+    @Operation(summary = "문제 조회", description = "하나의 문제를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "문제 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "해당 문제를 찾을 수 없습니다.")
+    })
     @PostMapping("/workspace/quiz/{id}")
-    public ResponseEntity<ApiResponseDTO<HashMap>> getQuizById(@RequestBody QuizResponseDTO quizResponseDTO) {
+    public ResponseEntity<ApiResponseDTO<HashMap>> getQuizById(@Parameter(description = "문제 아이디", example = "1", required = true)@RequestBody QuizResponseDTO quizResponseDTO) {
         HashMap <String, Object> quizDatas = new HashMap<>();
         Long findQuizId = quizResponseDTO.getQuizId();
         Long findUserId = quizResponseDTO.getUserId();
@@ -175,6 +188,8 @@ public class    QuizApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("문제상세조회",  quizDatas));
     }
 
+    @Operation(summary = "전체 문제 조회", description = "모든 문제들을 조회합니다")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @PostMapping("/quiz/all")
     public ResponseEntity<ApiResponseDTO<List<QuizVO>>> getAllQuizList() {
         List<QuizVO>quizList = quizService.quizList();
@@ -182,8 +197,11 @@ public class    QuizApi {
     }
 
 //    서브밋 테이블에 사용자의 코드,유저아이디, 퀴즈아이디, 제출시간, 디폴트에러
+    @Operation(summary = "Js 코드 채점", description = "실행 시킨 결과값과 해당 문제의 결과 기댓값을 비교합니다")
+    @ApiResponse(responseCode = "200", description = "채점 성공")
     @PostMapping("/quiz/js-success")
-    public ResponseEntity<ApiResponseDTO<HashMap>> getJsQuizSuccess(@RequestBody QuizResponseDTO quizResponseDTO) {
+    public ResponseEntity<ApiResponseDTO<HashMap>> getJsQuizSuccess(
+            @RequestBody QuizResponseDTO quizResponseDTO) {
         try {
         QuizResponseDTO dto = new QuizResponseDTO();
         HashMap<String, Object> submitDatas = new HashMap<>();
@@ -249,6 +267,8 @@ public class    QuizApi {
     }
 
 //    자바실행
+    @Operation(summary = "Java 코드 실행", description = "사용자에게 입력받은 Java코드를 실행시킵니다")
+    @ApiResponse(responseCode = "200", description = "실행 성공")
     @PostMapping("/quiz/java-expectation")
     public ResponseEntity<ApiResponseDTO<String>> getJavaExpectation(@RequestBody QuizResponseDTO quizResponseDTO ) {
         Long findUserId = quizResponseDTO.getUserId();
@@ -269,10 +289,11 @@ public class    QuizApi {
     }
 
 //    sql실행
+    @Operation(summary = "Sql 코드 실행", description = "사용자에게 입력받은 Sql 코드를 실행시킵니다")
+    @ApiResponse(responseCode = "200", description = "실행 성공")
     @PostMapping("/quiz/sql-expectation")
     public ResponseEntity<ApiResponseDTO<String>> getSqlExpectation(@RequestBody QuizResponseDTO quizResponseDTO ) {
         Long findQuizId = quizResponseDTO.getQuizId();
-        Long findUserId = quizResponseDTO.getUserId();
 
         String getUserCode = quizResponseDTO.getQuizSubmitCode();
         String quizExpectation = quizService.findQuizExpectationById(findQuizId).toUpperCase();
@@ -283,6 +304,8 @@ public class    QuizApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("실행 성공", quizExpectation));
     }
 //  자바 채점
+    @Operation(summary = "Java 코드 채점", description = "실행 시킨 결과값과 해당 문제의 결과 기댓값을 비교합니다")
+    @ApiResponse(responseCode = "200", description = "채점 성공")
     @PostMapping("/quiz/java-success")
     public ResponseEntity<ApiResponseDTO<HashMap>> getIsSuccess(@RequestBody QuizResponseDTO quizResponseDTO ) {
         HashMap<String, Object> submitDatas = new HashMap<>();
@@ -314,14 +337,13 @@ public class    QuizApi {
         if(!result.equals(findQuizExpectation)){
             throw new QuizException("기댓값과 일치하지 않습니다. 다시 시도해보세요!");
         }
-        //        서브밋 테이블에 추가해야함
         quizService.saveQuizSubmit(dto);
         quizService.modifySubmitResult(dto);
 
         QuizSubmitVO findSubmit = quizService.findQuizSubmitByIds(dto);
-//        퍼스널 테이블에 추가
         Long findPersonalId = quizService.findQuizPersonalById(dto);
         QuizPersonalVO findAllPersonalVO = quizService.findAllQuizPersonalById(findPersonalId);
+
         if(findPersonalId == null) {
             quizService.saveQuizPersonal(findQuizPersonalVO);
             quizService.isSolved(dto);
@@ -347,6 +369,8 @@ public class    QuizApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("기댓값과 일치합니다!\n다른 문제도 도전해보세요!!", submitDatas));
     }
 //    sql채점
+    @Operation(summary = "Sql 코드 채점", description = "실행 시킨 결과값과 해당 문제의 결과 기댓값을 비교합니다")
+    @ApiResponse(responseCode = "200", description = "채점 성공")
     @PostMapping("/quiz/sql-success")
     public ResponseEntity<ApiResponseDTO<HashMap>> getSqlSuccess(@RequestBody QuizResponseDTO quizResponseDTO ) {
         HashMap<String, Object> submitDatas = new HashMap<>();
