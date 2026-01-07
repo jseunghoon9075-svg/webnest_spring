@@ -27,24 +27,24 @@ public class QuizServiceImpl implements QuizService {
     private final QuizDAO quizDAO;
 
     @Override
-    public List<QuizVO> quizDirection(HashMap<String, Object> params) {
+    public List<QuizVO> getQuizDirection(HashMap<String, Object> params) {
         if (params == null) params = new HashMap<>();
-        return quizDAO.selectQuizAll(params);
+        return quizDAO.findQuizAll(params);
     }
     @Override
-    public List<QuizPersonalDTO> findQuizPersonal(HashMap<String, Object> params) {
-        return quizDAO.selectQuizWithPersonal(params);
+    public List<QuizPersonalDTO> getQuizPersonal(HashMap<String, Object> params) {
+        return quizDAO.findQuizWithPersonal(params);
     }
 
     @Override
-    public List<QuizVO> quizList() { return quizDAO.selectAll(); }
+    public List<QuizVO> getQuizList() { return quizDAO.findQuizAll(); }
 
     @Override
-    public Long quizCount(HashMap<String, Object> filters) { return quizDAO.selectAllCount(filters); }
+    public Long getQuizCount(HashMap<String, Object> filters) { return quizDAO.findAllCount(filters); }
 
     @Override
-    public QuizVO findQuizById(Long id) {
-        QuizVO quizId = quizDAO.selectById(id);
+    public QuizVO getQuizById(Long id) {
+        QuizVO quizId = quizDAO.findById(id);
         if(quizId == null){
             throw new QuizException("해당 문제 삭제");
         } else {
@@ -53,32 +53,32 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizPersonalDTO findQuizPersonalByAll(){
-        return  quizDAO.selectQuizPersonalAll();
+    public QuizPersonalDTO getQuizPersonalByAll(){
+        return  quizDAO.findQuizPersonalAll();
     }
 
     @Override
-    public String findQuizExpectationById(Long id) {
-        return quizDAO.selectExpectationById(id);
+    public String getQuizExpectationById(Long id) {
+        return quizDAO.findExpectationById(id);
     }
 
 
     @Override
-    public Integer isBookmarked(QuizResponseDTO quizResponseDTO) {
+    public Integer modifyIsBookmarked(QuizResponseDTO quizResponseDTO) {
          return quizDAO.updateIsBookmark(quizResponseDTO);
         }
     @Override
-    public boolean isSolved(QuizResponseDTO quizResponseDTO) {
+    public boolean modifyIsSolved(QuizResponseDTO quizResponseDTO) {
         return quizDAO.updateIsSolve(quizResponseDTO);
     }
     @Override
-    public Long findQuizPersonalById(QuizResponseDTO quizResponseDTO) { return quizDAO.selectQuizPersonalById(quizResponseDTO); }
+    public Long getQuizPersonalById(QuizResponseDTO quizResponseDTO) { return quizDAO.findQuizPersonalById(quizResponseDTO); }
 
     @Override
-    public QuizPersonalVO findAllQuizPersonalById(Long id) { return quizDAO.selectAllQuizPersonalById(id); }
+    public QuizPersonalVO getAllQuizPersonalById(Long id) { return quizDAO.findAllQuizPersonalById(id); }
 
     @Override
-    public List<QuizPersonalResponseDTO> findByIsBookmarkIsSolve(Long userId) { return quizDAO.selectByBookmarkIsSolve(userId); }
+    public List<QuizPersonalResponseDTO> getByIsBookmarkIsSolve(Long userId) { return quizDAO.findByBookmarkIsSolve(userId); }
 
     @Override
     public void saveQuizPersonal(QuizPersonalVO quizPersonalVO) { quizDAO.insertQuizPersonal(quizPersonalVO); }
@@ -90,10 +90,10 @@ public class QuizServiceImpl implements QuizService {
     public void saveQuizSubmit(QuizResponseDTO quizResponseDTO) { quizDAO.insertByQuizSubmit(quizResponseDTO); }
 
     @Override
-    public QuizSubmitVO findQuizSubmitByIds(QuizResponseDTO quizResponseDTO) { return quizDAO.selectByQuizSubmit(quizResponseDTO); }
+    public QuizSubmitVO getQuizSubmitByIds(QuizResponseDTO quizResponseDTO) { return quizDAO.findByQuizSubmit(quizResponseDTO); }
 
     @Override
-    public List<QuizSubmitVO> findAllQuizSubmitByIds(QuizResponseDTO quizResponseDTO) { return quizDAO.selectByQuizSubmitAll(quizResponseDTO); }
+    public List<QuizSubmitVO> getAllQuizSubmitByIds(QuizResponseDTO quizResponseDTO) { return quizDAO.findByQuizSubmitAll(quizResponseDTO); }
 
     @Override
     public void modifySubmitResult(QuizResponseDTO quizResponseDTO) { quizDAO.updateBySubmitResult(quizResponseDTO); }

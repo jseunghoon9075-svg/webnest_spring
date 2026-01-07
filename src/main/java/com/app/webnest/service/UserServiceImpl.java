@@ -189,9 +189,9 @@ public class UserServiceImpl implements UserService {
         // 좋아요 누른 - 문제 둥지
         List<PostLikeDTO> questionLikePosts = postLikeDAO.findLikedQuestionPostsByUserId(id);
         // 문제
-       List<QuizMyPageDTO> quizMyPage = quizDAO.selectByIdQuizIsSolveMyData(id);
+       List<QuizMyPageDTO> quizMyPage = quizDAO.findByIdQuizIsSolveMyData(id);
        // 등급에서 문제별 진도 상황
-        List<QuizMyPageDTO> quizMyPageLanguage = quizDAO.selectByIdQuizIsSolveForLanguageMyData(id);
+        List<QuizMyPageDTO> quizMyPageLanguage = quizDAO.findByIdQuizIsSolveForLanguageMyData(id);
         // 팔로워
         List<FollowDTO> followers = followDAO.findFollowersByUserId(id);
         // 팔로잉

@@ -27,17 +27,17 @@ class QuizDAOTest {
     @Test
     void selectAllCountTest() {
         HashMap<String,Object> map = new HashMap<>();
-        log.info("selectAllCount: {}", quizDAO.selectAllCount(map));
+        log.info("selectAllCount: {}", quizDAO.findAllCount(map));
     }
 
     @Test
     public void selectByIdTest() {
-        log.info("selectById: {}", quizDAO.selectById(1L));
+        log.info("selectById: {}", quizDAO.findById(1L));
     }
 
     @Test
     public void selectByQuizExpectationTest() {
-        log.info("expectation {}", quizDAO.selectExpectationById(1L));
+        log.info("expectation {}", quizDAO.findExpectationById(1L));
     }
 
 
@@ -63,14 +63,14 @@ class QuizDAOTest {
         QuizResponseDTO quizResponseDTO = new QuizResponseDTO();
         quizResponseDTO.setQuizId(4L);
         quizResponseDTO.setUserId(5L);
-        log.info("submit: {}",  quizDAO.selectByQuizSubmit(quizResponseDTO));
+        log.info("submit: {}",  quizDAO.findByQuizSubmit(quizResponseDTO));
     }
 
     @Test
     void selectByQuizSubmitAllTest() {
         QuizResponseDTO quizResponseDTO = new QuizResponseDTO();
         quizResponseDTO.setUserId(5L);
-        log.info("submitAll: {}", quizDAO.selectByQuizSubmitAll(quizResponseDTO));
+        log.info("submitAll: {}", quizDAO.findByQuizSubmitAll(quizResponseDTO));
     }
 
     @Test
@@ -83,6 +83,6 @@ class QuizDAOTest {
 
     @Test
     void selectByIdQuizIsSolveMyData() {
-        log.info("selectByIdQuizIsSolveMyDataTest", quizDAO.selectByIdQuizIsSolveMyData(1L));
+        log.info("selectByIdQuizIsSolveMyDataTest", quizDAO.findByIdQuizIsSolveMyData(1L));
     }
 }

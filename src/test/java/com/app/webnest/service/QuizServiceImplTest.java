@@ -23,7 +23,7 @@ class QuizServiceImplTest {
         map.put("quizLanguage", "JAVA");
         map.put("cursor", "1");
 
-        log.info("getQuizList: {}", quizService.quizDirection(map));
+        log.info("getQuizList: {}", quizService.getQuizDirection(map));
     }
 
     @Test
